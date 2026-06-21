@@ -18,7 +18,7 @@ const proof = [
 
 const work = [
   {
-    tag: "Case study ·growth automation",
+    tag: "Case study · growth automation",
     title: "Ad to signed contract in 14 days",
     desc: "Designed the creative, launched a Marketplace ad, and built an applicant-scoring and daily-digest pipeline that turned cold inbound into a signed, delivered deal.",
     metric: "$1,400/mo recurring · 14-day cycle",
@@ -27,7 +27,7 @@ const work = [
     accent: "royal" as const,
   },
   {
-    tag: "Open source ·applied AI",
+    tag: "Open source · applied AI",
     title: "rag-eval-harness",
     desc: "A reproducible benchmark for RAG retrieval quality across lexical, semantic, and hybrid retrievers, scored on recall, precision, MRR, and nDCG.",
     metric: "dense retriever · 0.957 nDCG@3",
@@ -36,7 +36,16 @@ const work = [
     accent: "red" as const,
   },
   {
-    tag: "Product ·multi-tenant SaaS",
+    tag: "Open source · MCP server",
+    title: "rageval-mcp",
+    desc: "An MCP server that turns RAG retrieval evaluation into agent tools, so a model can retrieve passages and benchmark BM25, TF-IDF, dense, and hybrid retrievers from inside a conversation.",
+    metric: "3 tools · official MCP SDK",
+    cta: "View on GitHub",
+    href: "https://github.com/phillipkaraya/rageval-mcp",
+    accent: "red" as const,
+  },
+  {
+    tag: "Product · multi-tenant SaaS",
     title: "Intellovate Command",
     desc: "A multi-tenant marketing operations platform on Next.js and Supabase with row-level-security isolation, shipped to production.",
     metric: "Next.js 16 · Supabase RLS · live",
@@ -131,7 +140,7 @@ export default function Home() {
         <h2 className="mt-3 max-w-[20ch] font-display text-3xl font-bold tracking-tight md:text-4xl">
           Shipped, measured, in production
         </h2>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
           {work.map((w) => (
             <a
               key={w.title}
@@ -206,7 +215,9 @@ export default function Home() {
                 GitHub
               </a>
               <a
-                href="#"
+                href="/phillip-karaya-resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/30 px-4 py-2.5 text-sm font-medium text-white transition hover:border-white/70"
               >
                 <FileText className="size-4" />
@@ -246,7 +257,7 @@ export default function Home() {
               <a href="https://github.com/phillipkaraya" className="transition hover:text-white">
                 GitHub
               </a>
-              <a href="#" className="transition hover:text-white">
+              <a href="https://www.linkedin.com/in/phillip-karaya" className="transition hover:text-white">
                 LinkedIn
               </a>
               <a href="https://instagram.com/phillip.karaya" className="transition hover:text-white">
