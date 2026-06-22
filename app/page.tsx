@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   ArrowUpRight,
+  BookOpen,
   Boxes,
   FileText,
   FlaskConical,
@@ -229,6 +230,13 @@ export default function Home() {
               >
                 <FlaskConical className="size-4" />
                 Eval harness
+              </a>
+              <a
+                href="/writing/faithful-but-wrong"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/30 px-4 py-2.5 text-sm font-medium text-white transition hover:border-white/70"
+              >
+                <BookOpen className="size-4" />
+                Writeup
               </a>
             </div>
           </div>
