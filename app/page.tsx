@@ -38,8 +38,8 @@ const work = [
   {
     tag: "Open source · MCP server",
     title: "rageval-mcp",
-    desc: "An MCP server that turns RAG retrieval evaluation into agent tools, so a model can retrieve passages and benchmark BM25, TF-IDF, dense, and hybrid retrievers from inside a conversation.",
-    metric: "3 tools · official MCP SDK",
+    desc: "An MCP server that exposes end-to-end RAG evaluation as agent tools: benchmark BM25, TF-IDF, dense, and hybrid retrieval, then score the answers a model generates for faithfulness and correctness with an LLM judge running on Cloudflare Workers AI (no Anthropic key), over a corpus you can swap at runtime.",
+    metric: "5 tools · Cloudflare Workers AI judge",
     cta: "View on GitHub",
     href: "https://github.com/phillipkaraya/rageval-mcp",
     accent: "red" as const,
