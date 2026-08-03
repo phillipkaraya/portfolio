@@ -1,14 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Menu, X } from "lucide-react";
-
-const links = [
-  { href: "#work", label: "Work" },
-  { href: "#approach", label: "Approach" },
-  { href: "#hiring", label: "For hiring teams" },
-  { href: "#contact", label: "Contact" },
-];
+import { NAV_LINKS } from "@/lib/nav";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -26,25 +21,25 @@ export function MobileNav() {
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-white/10 bg-night/95 p-4 backdrop-blur">
+        <div className="absolute right-0 left-0 top-full z-50 mt-2 rounded-xl border border-white/10 bg-night/95 p-4 backdrop-blur">
           <div className="flex flex-col">
-            {links.map((l) => (
-              <a
+            {NAV_LINKS.map((l) => (
+              <Link
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-3 text-sm text-white/80 transition hover:bg-white/5 hover:text-white"
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
-            <a
-              href="#contact"
+            <Link
+              href="/#contact"
               onClick={() => setOpen(false)}
               className="mt-2 rounded-lg bg-royal px-4 py-3 text-center text-sm font-medium text-white transition hover:bg-royal-dark"
             >
               Book a call
-            </a>
+            </Link>
           </div>
         </div>
       )}

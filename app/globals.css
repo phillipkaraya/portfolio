@@ -2,27 +2,106 @@
 
 @theme inline {
   --color-paper: #ffffff;
-  --color-surface: #f4f5f8;
+  --color-surface: #f5f6f9;
   --color-ink: #0a0b0d;
   --color-muted: #5b6270;
   --color-line: #e6e8ec;
+
   --color-royal: #1f44e0;
   --color-royal-dark: #1736c4;
   --color-royal-light: #6f8bff;
   --color-red: #e11d2a;
+  --color-red-light: #ff6b74;
+  --color-violet: #6d3fd1;
+  --color-violet-light: #a98bf5;
   --color-night: #0b0d12;
+  --color-night-soft: #12151d;
 
   --font-sans: var(--font-inter);
-  --font-display: var(--font-space-grotesk);
+  --font-display: var(--font-fraunces);
   --font-mono: var(--font-jetbrains);
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Sticky headers must not cover the anchor target */
+    scroll-padding-top: 5rem;
   }
   ::selection {
     background-color: var(--color-royal);
     color: #ffffff;
+  }
+  /* Fraunces is a variable font: dial in optical size + a little "softness"
+     so display sizes stay editorial rather than stiff. */
+  .font-display {
+    font-variation-settings: "SOFT" 20, "WONK" 1, "opsz" 72;
+    letter-spacing: -0.018em;
+  }
+  /* Smaller display text needs a lower optical size to stay legible */
+  .font-display-sm {
+    font-family: var(--font-fraunces);
+    font-variation-settings: "SOFT" 12, "WONK" 0, "opsz" 20;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  /*
+   * Film grain. An inline feTurbulence data URI, so no network request.
+   * Sits above the gradient and below content via a parent stacking context.
+   */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  }
+
+  /*
+   * Scroll reveal. The `.reveal` class is applied by components/reveal.tsx
+   * only AFTER mount, and only to elements below the fold. The server render
+   * carries no reveal class at all, so a failed bundle leaves the page fully
+   * readable rather than stranded at opacity 0.
+   */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  .reveal-in {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Hairline rule that fades out, used under section kickers */
+  .rule-fade {
+    background: linear-gradient(90deg, currentColor, transparent);
+  }
+}
+
+/* Motion is decoration here, never information. Strip all of it on request. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-in {
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }

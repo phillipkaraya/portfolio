@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -5,117 +6,102 @@ import {
   Boxes,
   FileText,
   FlaskConical,
-  Mail,
   Workflow,
 } from "lucide-react";
-import { MobileNav } from "@/components/mobile-nav";
+import { Reveal } from "@/components/reveal";
+import { BuildCard, DeepCard } from "@/components/project-cards";
+import { Atmosphere, GithubIcon, SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { builds, counts, openSource, platforms, systems } from "@/lib/projects";
 
 const proof = [
-  "Next.js + Supabase in prod",
-  "RAG eval harness",
-  "Claude API & MCP servers",
-  "20+ shipped deployments",
+  `${counts.total} shipped projects`,
+  "Autonomous agents in production",
+  "RAG eval harness + MCP server",
+  "Next.js · Supabase · Cloudflare",
 ];
 
-const work = [
-  {
-    tag: "Case study · growth automation",
-    title: "Ad to signed contract in 14 days",
-    desc: "Designed the creative, launched a Marketplace ad, and built an applicant-scoring and daily-digest pipeline that turned cold inbound into a signed, delivered deal.",
-    metric: "$1,400/mo recurring · 14-day cycle",
-    cta: "Read the case study",
-    href: "/work/tesla-rental-funnel",
-    accent: "royal" as const,
-  },
-  {
-    tag: "Open source · applied AI",
-    title: "rag-eval-harness",
-    desc: "A reproducible benchmark for RAG retrieval quality across lexical, semantic, and hybrid retrievers, scored on recall, precision, MRR, and nDCG.",
-    metric: "dense retriever · 0.957 nDCG@3",
-    cta: "View on GitHub",
-    href: "https://github.com/phillipkaraya/rag-eval-harness",
-    accent: "red" as const,
-  },
-  {
-    tag: "Open source · MCP server",
-    title: "rageval-mcp",
-    desc: "An MCP server that exposes end-to-end RAG evaluation as agent tools: benchmark BM25, TF-IDF, dense, and hybrid retrieval, then score the answers a model generates for faithfulness and correctness with an LLM judge running on Cloudflare Workers AI (no Anthropic key), over a corpus you can swap at runtime.",
-    metric: "5 tools · Cloudflare Workers AI judge",
-    cta: "View on GitHub",
-    href: "https://github.com/phillipkaraya/rageval-mcp",
-    accent: "red" as const,
-  },
-  {
-    tag: "Product · multi-tenant SaaS",
-    title: "Intellovate Command",
-    desc: "A multi-tenant marketing operations platform on Next.js and Supabase with row-level-security isolation, shipped to production.",
-    metric: "Next.js 16 · Supabase RLS · live",
-    cta: "About the build",
-    href: "#contact",
-    accent: "royal" as const,
-  },
-];
-
-function GithubIcon({ className }: { className?: string }) {
+/** Shared section intro: mono kicker over a fading rule, then a serif headline. */
+function SectionHead({
+  kicker,
+  title,
+  lede,
+  tone = "light",
+}: {
+  kicker: string;
+  title: React.ReactNode;
+  lede?: string;
+  tone?: "light" | "dark";
+}) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
-      <path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.74 1.27 3.4.97.11-.76.41-1.27.74-1.56-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.2-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.2 1.18a11 11 0 0 1 5.82 0c2.23-1.49 3.2-1.18 3.2-1.18.63 1.59.23 2.76.12 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.8 1.08.8 2.18v3.23c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z" />
-    </svg>
+    <Reveal>
+      <div className="flex items-center gap-3">
+        <span
+          className={`font-mono text-xs tracking-[0.18em] uppercase ${tone === "dark" ? "text-royal-light" : "text-red"}`}
+        >
+          {kicker}
+        </span>
+        <span
+          aria-hidden
+          className={`rule-fade h-px flex-1 ${tone === "dark" ? "text-white/25" : "text-line"}`}
+        />
+      </div>
+      {/* text-balance stops headings breaking mid-hyphenate, e.g. "done-for-|you" */}
+      <h2
+        className={`font-display mt-4 max-w-[26ch] text-3xl leading-[1.08] font-semibold tracking-tight text-balance md:text-5xl ${tone === "dark" ? "text-white" : "text-ink"}`}
+      >
+        {title}
+      </h2>
+      {lede && (
+        <p
+          className={`mt-4 max-w-[62ch] leading-relaxed ${tone === "dark" ? "text-white/60" : "text-muted"}`}
+        >
+          {lede}
+        </p>
+      )}
+    </Reveal>
   );
 }
 
 export default function Home() {
+  const featuredBuilds = builds.slice(0, 6);
+
   return (
     <div>
-      <header className="relative overflow-hidden bg-night text-white">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(55rem 28rem at 82% -12%, rgba(31,68,224,0.28), transparent 60%), radial-gradient(38rem 20rem at -5% 0%, rgba(225,29,42,0.12), transparent 55%)",
-          }}
-        />
+      {/* ---------------------------------------------------------------- Hero */}
+      <header className="bg-night relative overflow-hidden text-white">
+        <Atmosphere />
         <div className="relative mx-auto w-full max-w-6xl px-6">
-          <nav className="relative flex items-center justify-between py-6">
-            <span className="font-display text-lg font-bold tracking-tight">Phillip Karaya</span>
-            <div className="hidden items-center gap-8 text-sm text-white/70 md:flex">
-              <a href="#work" className="transition hover:text-white">Work</a>
-              <a href="#approach" className="transition hover:text-white">Approach</a>
-              <a href="#hiring" className="transition hover:text-white">For hiring teams</a>
-              <a href="#contact" className="transition hover:text-white">Contact</a>
-            </div>
-            <a
-              href="#contact"
-              className="hidden rounded-lg bg-royal px-4 py-2 text-sm font-medium text-white transition hover:bg-royal-dark md:inline-flex"
-            >
-              Book a call
-            </a>
-            <MobileNav />
-          </nav>
+          <SiteHeader />
 
-          <div className="py-20 md:py-28">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-royal-light">
+          <div className="py-20 md:py-32">
+            <p className="text-royal-light font-mono text-xs tracking-[0.2em] uppercase">
               AI solutions engineer · forward-deployed
             </p>
-            <h1 className="mt-6 max-w-[16ch] font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
+            <h1 className="font-display mt-6 max-w-[17ch] text-5xl leading-[1.03] font-semibold tracking-tight text-balance md:text-7xl">
               I build AI systems that{" "}
-              <span className="relative inline-block">
-                ship to production
-                <span aria-hidden className="absolute -bottom-1 left-0 h-1 w-full bg-red" />
-              </span>
-              .
+              {/*
+                A real text-decoration, not an absolutely positioned bar. The
+                bar was `inline-block` + `w-full`, so once the phrase wrapped on
+                mobile it drew across the full container instead of hugging the
+                words. text-decoration wraps per line for free; the offset is
+                tuned to clear descenders on "p" so skip-ink never breaks it.
+              */}
+              <span className="decoration-red underline decoration-[5px] underline-offset-[9px] md:decoration-[7px] md:underline-offset-[16px]">
+                solve real problems
+              </span>{" "}
+              for real businesses.
             </h1>
-            <p className="mt-6 max-w-[52ch] text-lg text-white/65">
-              Two ways to work with me: embedded as an engineer on your team, or done-for-you AI
-              projects for your business.
+            <p className="mt-7 max-w-[56ch] text-lg text-white/60">
+              Not demos. Agents that have run unattended for months, retrieval stacks measured with
+              real evals, and platforms that real teams log into every day. Two ways to work with me:
+              embedded as an engineer on your team, or done-for-you builds for your business.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <a
-                href="#work"
-                className="inline-flex items-center gap-2 rounded-lg bg-royal px-5 py-3 text-sm font-medium text-white transition hover:bg-royal-dark"
+                href="#systems"
+                className="bg-royal hover:bg-royal-dark inline-flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-medium text-white transition"
               >
-                See the work <ArrowRight className="size-4" />
+                See the systems <ArrowRight className="size-4" />
               </a>
               <a
                 href="#hiring"
@@ -124,10 +110,10 @@ export default function Home() {
                 For hiring teams
               </a>
             </div>
-            <div className="mt-14 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-white/55">
+            <div className="mt-14 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-white/50">
               {proof.map((p) => (
                 <span key={p} className="flex items-center gap-2">
-                  <span className="size-1.5 rounded-full bg-royal-light" />
+                  <span className="bg-royal-light size-1.5 rounded-full" />
                   {p}
                 </span>
               ))}
@@ -136,73 +122,186 @@ export default function Home() {
         </div>
       </header>
 
-      <section id="work" className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-red">Selected work</p>
-        <h2 className="mt-3 max-w-[20ch] font-display text-3xl font-bold tracking-tight md:text-4xl">
-          Shipped, measured, in production
-        </h2>
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          {work.map((w) => (
-            <a
-              key={w.title}
-              href={w.href}
-              className="group relative flex flex-col overflow-hidden rounded-xl border border-line bg-paper p-6 transition duration-300 hover:-translate-y-1 hover:border-ink/20"
-            >
-              <span
-                aria-hidden
-                className={`absolute inset-x-0 top-0 h-1 ${w.accent === "red" ? "bg-red" : "bg-royal"}`}
-              />
-              <span className="font-mono text-[11px] uppercase tracking-wide text-muted">
-                {w.tag}
-              </span>
-              <h3 className="mt-3 font-display text-xl font-bold tracking-tight">{w.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{w.desc}</p>
-              <span className="mt-5 font-mono text-sm text-royal">{w.metric}</span>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-ink">
-                {w.cta}
-                <ArrowUpRight className="size-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </span>
-            </a>
+      {/* ------------------------------------------------------------ Systems */}
+      <section id="systems" className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
+        <SectionHead
+          kicker="Built and operated in-house"
+          title={
+            <>
+              I don&rsquo;t just build them. <span className="text-royal">I run them.</span>
+            </>
+          }
+          lede="Systems on my own infrastructure, most built for myself, where the hard problems get solved before a client ever pays for them. Every one of these is live right now."
+        />
+        <div className="mt-12 grid gap-5 md:grid-cols-2">
+          {systems.map((p, i) => (
+            <Reveal key={p.slug} delay={(i % 2) * 80}>
+              {/* Uniform typographic cards: see the showImage note in DeepCard */}
+              <DeepCard project={p} showImage={false} />
+            </Reveal>
           ))}
         </div>
       </section>
 
-      <section id="approach" className="bg-surface">
+      {/* ---------------------------------------------------------- Platforms */}
+      <section id="platforms" className="bg-surface">
         <div className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-red">Two ways to work</p>
-          <h2 className="mt-3 max-w-[22ch] font-display text-3xl font-bold tracking-tight md:text-4xl">
-            Embedded engineer, or done-for-you
-          </h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
-            <div className="rounded-xl border border-line bg-paper p-7">
-              <Workflow className="size-6 text-royal" />
-              <h3 className="mt-4 font-display text-xl font-bold">Embedded engineer</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
+          <SectionHead
+            kicker="Platforms · The big builds"
+            title={
+              <>
+                Beyond websites: <span className="text-royal">full platforms.</span>
+              </>
+            }
+            lede="Multi-app systems with real users, real data, and real operations running through them, designed and shipped end to end."
+          />
+          <div className="mt-12 grid gap-5 md:grid-cols-2">
+            {platforms.map((p, i) => (
+              <Reveal key={p.slug} delay={(i % 2) * 80}>
+                <DeepCard project={p} />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* -------------------------------------------------- Open source + CS */}
+      <section className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
+        <SectionHead
+          kicker="Open source & measured work"
+          title={
+            <>
+              Evals, not <span className="text-red">vibes.</span>
+            </>
+          }
+          lede="Retrieval quality you can reproduce, plus a growth build measured end to end from ad spend to signed contract."
+        />
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {openSource.map((o, i) => (
+            <Reveal key={o.title} delay={i * 80}>
+              <a
+                href={o.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group border-line bg-paper flex h-full flex-col rounded-xl border p-6 transition duration-300 hover:-translate-y-1 hover:border-red/30 hover:shadow-[0_16px_44px_-20px_rgba(225,29,42,0.35)]"
+              >
+                <span aria-hidden className="bg-red mb-4 h-1 w-10 rounded-full" />
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-display text-xl font-semibold tracking-tight">{o.title}</h3>
+                  <GithubIcon className="text-muted group-hover:text-ink mt-1 size-4 shrink-0 transition" />
+                </div>
+                <p className="text-muted mt-2 text-sm leading-relaxed">{o.desc}</p>
+                <span className="text-red mt-auto pt-5 font-mono text-sm">{o.metric}</span>
+              </a>
+            </Reveal>
+          ))}
+          <Reveal delay={160}>
+            <Link
+              href="/work/tesla-rental-funnel"
+              className="group border-line bg-paper flex h-full flex-col rounded-xl border p-6 transition duration-300 hover:-translate-y-1 hover:border-royal/30 hover:shadow-[0_16px_44px_-20px_rgba(31,68,224,0.35)]"
+            >
+              <span aria-hidden className="bg-royal mb-4 h-1 w-10 rounded-full" />
+              <span className="text-muted font-mono text-[11px] tracking-wide uppercase">
+                Case study · growth automation
+              </span>
+              <h3 className="font-display mt-2 text-xl font-semibold tracking-tight">
+                Ad to signed contract in 14 days
+              </h3>
+              <p className="text-muted mt-2 text-sm leading-relaxed">
+                Designed the creative, launched a Marketplace ad, and built an applicant-scoring and
+                daily-digest pipeline that turned cold inbound into a signed, delivered deal.
+              </p>
+              <span className="text-royal mt-auto inline-flex items-center gap-1 pt-5 font-mono text-sm">
+                $1,400/mo · 14-day cycle
+                <ArrowUpRight className="size-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
+            </Link>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------ Client builds */}
+      <section id="builds" className="bg-surface">
+        <div className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
+          <SectionHead
+            kicker="Client builds"
+            title={
+              <>
+                {counts.builds} live sites and tools, <span className="text-royal">shipped.</span>
+              </>
+            }
+            lede="Product sites, internal tools, and lead-gen apps delivered for clients. Every link below opens the real thing, running in production."
+          />
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredBuilds.map((b, i) => (
+              <Reveal key={b.name} delay={(i % 3) * 70}>
+                <BuildCard build={b} />
+              </Reveal>
+            ))}
+          </div>
+          <Reveal className="mt-10">
+            <Link
+              href="/work"
+              className="border-ink/15 hover:border-ink/40 inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-medium transition"
+            >
+              See all {counts.total} projects <ArrowRight className="size-4" />
+            </Link>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ---------------------------------------------------------- Approach */}
+      <section id="approach" className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
+        <SectionHead
+          kicker="Two ways to work"
+          title={
+            <>
+              Embedded engineer, or <span className="text-royal">done-for-you.</span>
+            </>
+          }
+        />
+        <div className="mt-12 grid gap-5 md:grid-cols-2">
+          <Reveal>
+            <div className="border-line bg-paper h-full rounded-xl border p-7">
+              <Workflow className="text-royal size-6" />
+              <h3 className="font-display mt-4 text-xl font-semibold">Embedded engineer</h3>
+              <p className="text-muted mt-2 text-sm leading-relaxed">
                 Drop in as a forward-deployed engineer: scope the problem with your customers, build
                 the POC, and ship it to production. RAG, agents, evals, and the integrations that
                 make it real.
               </p>
             </div>
-            <div className="rounded-xl border border-line bg-paper p-7">
-              <Boxes className="size-6 text-red" />
-              <h3 className="mt-4 font-display text-xl font-bold">Done-for-you projects</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="border-line bg-paper h-full rounded-xl border p-7">
+              <Boxes className="text-red size-6" />
+              <h3 className="font-display mt-4 text-xl font-semibold">Done-for-you projects</h3>
+              <p className="text-muted mt-2 text-sm leading-relaxed">
                 A fixed-scope AI build for your business: a workflow automation, an assistant over
                 your data, or an internal tool, delivered end to end and live in weeks.
               </p>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <section id="hiring" className="bg-royal text-white">
-        <div className="mx-auto w-full max-w-6xl px-6 py-16 md:py-20">
+      {/* ------------------------------------------------------------ Hiring */}
+      <section id="hiring" className="bg-royal relative overflow-hidden text-white">
+        <div
+          aria-hidden
+          className="grain pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(40rem 20rem at 88% 0%, rgba(255,255,255,0.16), transparent 60%)",
+          }}
+        />
+        <div className="relative mx-auto w-full max-w-6xl px-6 py-16 md:py-20">
           <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
             <div>
-              <h2 className="max-w-[24ch] font-display text-2xl font-bold tracking-tight md:text-3xl">
+              <h2 className="font-display max-w-[26ch] text-2xl leading-tight font-semibold tracking-tight md:text-4xl">
                 For hiring teams: production code, evals, and shipped systems.
               </h2>
-              <p className="mt-3 max-w-[50ch] text-sm text-white/75">
+              <p className="mt-3 max-w-[52ch] text-sm text-white/75">
                 Forward-deployed and AI solutions engineering. Remote, US. Read the work, then the
                 résumé.
               </p>
@@ -210,7 +309,7 @@ export default function Home() {
             <div className="flex flex-wrap gap-3">
               <a
                 href="https://github.com/phillipkaraya"
-                className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-royal transition hover:bg-white/90"
+                className="text-royal inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-medium transition hover:bg-white/90"
               >
                 <GithubIcon className="size-4" />
                 GitHub
@@ -231,51 +330,19 @@ export default function Home() {
                 <FlaskConical className="size-4" />
                 Eval harness
               </a>
-              <a
+              <Link
                 href="/writing/faithful-but-wrong"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/30 px-4 py-2.5 text-sm font-medium text-white transition hover:border-white/70"
               >
                 <BookOpen className="size-4" />
                 Writeup
-              </a>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <footer id="contact" className="bg-night text-white">
-        <div className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
-          <h2 className="max-w-[14ch] font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
-            Let’s build something that ships.
-          </h2>
-          <p className="mt-4 max-w-[46ch] text-white/65">
-            Available for remote AI engineering contracts and project work. Atlanta, GA, working
-            across US time zones.
-          </p>
-          <a
-            href="mailto:pnkaraya@gmail.com"
-            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-royal px-5 py-3 text-sm font-medium text-white transition hover:bg-royal-dark"
-          >
-            <Mail className="size-4" />
-            pnkaraya@gmail.com
-          </a>
-          <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-sm text-white/50 md:flex-row md:items-center">
-            <span className="font-display font-bold text-white/80">Phillip Karaya</span>
-            <div className="flex gap-6">
-              <a href="https://github.com/phillipkaraya" className="transition hover:text-white">
-                GitHub
-              </a>
-              <a href="https://www.linkedin.com/in/phillip-karaya" className="transition hover:text-white">
-                LinkedIn
-              </a>
-              <a href="https://instagram.com/phillip.karaya" className="transition hover:text-white">
-                Instagram
-              </a>
-            </div>
-            <span>© 2026 Phillip Karaya</span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
