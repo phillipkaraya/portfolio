@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, ArrowUpRight, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, CircleAlert, ShieldAlert, Wrench } from "lucide-react";
 import { StatBlock } from "@/components/stat-block";
 import { Reveal } from "@/components/reveal";
 import { Atmosphere, SiteFooter, SiteHeader } from "@/components/site-chrome";
@@ -214,6 +214,36 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             </ul>
           </section>
         )}
+
+        {/* ------------------------------------------------------- Hard part */}
+        <section className="mx-auto w-full max-w-5xl px-6 pt-14 pb-16 md:pt-16 md:pb-20">
+          <Reveal>
+            <div className="flex items-center gap-3">
+              <span className="text-muted font-mono text-xs tracking-[0.18em] uppercase">
+                Shipping it
+              </span>
+              <span aria-hidden className="rule-fade text-line h-px flex-1" />
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="border-line bg-surface mt-8 grid gap-8 rounded-xl border p-7 md:grid-cols-2 md:gap-10 md:p-9">
+              <div>
+                <h2 className="text-ink flex items-center gap-2 text-sm font-semibold">
+                  <CircleAlert className={`size-4 ${accentTextDark[project.accent]}`} />
+                  What made it hard
+                </h2>
+                <p className="text-muted mt-3 leading-relaxed">{project.hardPart.problem}</p>
+              </div>
+              <div className="border-line md:border-l md:pl-10">
+                <h2 className="text-ink flex items-center gap-2 text-sm font-semibold">
+                  <Wrench className={`size-4 ${accentTextDark[project.accent]}`} />
+                  How I handled it
+                </h2>
+                <p className="text-muted mt-3 leading-relaxed">{project.hardPart.solution}</p>
+              </div>
+            </div>
+          </Reveal>
+        </section>
 
         {/* ---------------------------------------------------------- Proves */}
         <section className="bg-night relative overflow-hidden text-white">

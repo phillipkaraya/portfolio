@@ -61,6 +61,16 @@ export type DeepProject = {
   /** What it proves or unlocks. Renders in the pulled-out dark band. */
   nowWhat: string;
 
+  /*
+   * The hard part of actually shipping it, and how it was handled.
+   *
+   * Deliberately pitched at the level of REASONING, not recipe. The failure
+   * mode designed against and the principle applied are the credential; the
+   * implementation is the asset and stays private. If a sentence here would
+   * let a competitor skip the work, cut it.
+   */
+  hardPart: { problem: string; solution: string };
+
   stats: Stat[];
   stack: string[];
   /** Section heading for the module list, e.g. "The nine modules" */
@@ -112,6 +122,12 @@ export const systems: DeepProject[] = [
       "Most AI demos run for a minute with a person watching. The hard part is month three, when a data feed goes bad, an API goes down, or the agent makes a run of bad calls. This is a rig built to find out what happens then. Each agent keeps its own scorecard, so a losing pattern gets down-weighted automatically without anyone stepping in.",
     nowWhat:
       "It shows that agents can run unattended for months and recover from real failures, including their own mistakes. That is the line between an AI demo and an AI system you can leave running.",
+    hardPart: {
+      problem:
+        'An agent left running for months will eventually be handed bad data or hit an API outage mid decision. The dangerous failure is not crashing, it is carrying on confidently against stale prices.',
+      solution:
+        'Every decision is written to a ledger before it is acted on, so state can be rebuilt from the record after any interruption, and each agent scores its own past calls per instrument so a losing pattern loses weight without anyone intervening. Recovery is a normal code path rather than an exception handler. The strategies themselves stay private.',
+    },
     stats: [
       { value: "4", label: "autonomous agents" },
       { value: "24/7", label: "unattended uptime" },
@@ -141,6 +157,12 @@ export const systems: DeepProject[] = [
       "Most companies sit on years of conversations and documents nobody can find. The usual fix is to pay an AI provider by the word, which gets expensive the moment the archive is large enough to be worth searching. This one runs on Cloudflare's edge instead, so re-reading and re-indexing the entire archive costs about a dollar forty rather than a recurring invoice.",
     nowWhat:
       "This is the exact stack behind the phrase everyone wants, search your company's knowledge: embeddings, hybrid search, summarization, and storage tiering. Built and running at real scale, not sketched in a notebook.",
+    hardPart: {
+      problem:
+        'Embedding a quarter million messages through a per-token API costs more than the system is worth, and any future model change means paying the whole bill again. Separately, the full-text index behaved differently on a clean rebuild than on the nightly incremental run, which is the class of bug that only shows up once the corpus is big enough to matter.',
+      solution:
+        'Inference moved to a fixed-cost edge provider, which turned a full re-embed from a budget conversation into a dollar forty decision, and older material tiers itself to cold storage. The index problem was caught by rebuilding from scratch on a schedule and comparing, rather than trusting incremental runs to stay correct forever.',
+    },
     stats: [
       { value: "212K", unit: "+", label: "messages indexed" },
       { value: "65,924", label: "vector embeddings" },
@@ -171,6 +193,12 @@ export const systems: DeepProject[] = [
       "Websites push back on automated collection, and the common answer is to use the heaviest, most expensive method on every single request. This one starts with the lightest approach and only escalates when a source actually resists, paces itself per site, and remembers what it has already seen. Nearly every run finishes on the cheapest tier, which is why a nationwide daily sweep costs a few dollars a month instead of hundreds.",
     nowWhat:
       "New sources are added by writing a config entry, not new code, and 87 tests keep it honest. It is collection infrastructure that survives contact with the real internet and stays maintainable a year later.",
+    hardPart: {
+      problem:
+        'Public sources change shape without warning and actively resist automation. The obvious answer, reaching for the heaviest retrieval method on every request, is expensive and still breaks the moment a page is restructured.',
+      solution:
+        'Requests escalate through progressively heavier strategies, and only once a source has actually pushed back, so nearly everything finishes on the cheapest tier. Jobs are declared as configuration rather than code, so a source changing shape is an edit instead of a deploy, and 87 tests catch drift before a customer notices. Which sources and which methods stay in house.',
+    },
     stats: [
       { value: "30", label: "markets, daily" },
       { value: "1,406", label: "live records maintained" },
@@ -200,6 +228,12 @@ export const systems: DeepProject[] = [
       "I spent two days trying to reach a person about cancelling a flight, then waited another forty business days for the refund. Two months of real time. This agent replies in about 1.8 seconds. And because a second AI grades every finished conversation on empathy, accuracy, resolution, efficiency, and compliance, quality gets measured on all of them instead of the handful a supervisor happens to sample.",
     nowWhat:
       "The useful part is not that it answers. It is that it knows when to stop. An agent that recognizes the limit of its own authority is the difference between one you can put in front of customers and one you cannot.",
+    hardPart: {
+      problem:
+        'An agent confident enough to be useful is also confident enough to promise a refund it has no authority to approve. On top of that there was no paid inference budget for it, so it had to run well on a free tier.',
+      solution:
+        'Legal and regulatory risk is scored as its own signal, separate from what the customer is asking for, so a risky message escalates even when the intent looks routine. Escalation opens a tracked case carrying the entire thread rather than dead-ending in a queue. The free-tier constraint forced short, disciplined prompts, which improved reply quality rather than hurting it.',
+    },
     stats: [
       { value: "8", label: "service desks routed" },
       { value: "1.8", unit: "s", label: "average first reply" },
@@ -238,6 +272,12 @@ export const systems: DeepProject[] = [
       "Paid lookup services return nothing useful the moment the owner is an LLC, which describes most of the records worth looking at. So I built the chain myself: find the company in state business registries, pull the name of the officer behind it, then match that person to current contact details. Across one batch of 2,746 records it resolved 64% and produced 562 verified phone numbers.",
     nowWhat:
       "This is data engineering where the easy path fails: sources that resist automation, records that need real parsing, and a result measured in people you can actually reach rather than rows downloaded.",
+    hardPart: {
+      problem:
+        'Paid lookup services return nothing the moment the owner of record is a company rather than a person, and the registries that do hold the answer are inconsistent from one state to the next.',
+      solution:
+        'Treated as entity resolution rather than lookup: company to officer to person, three separate matches each carrying its own confidence, so a weak link fails loudly instead of handing back a confident wrong phone number. That discipline is why the honest figure is 64% rather than a claim of full coverage. Sources and methods stay in house.',
+    },
     stats: [
       { value: "2,746", label: "leads in one batch" },
       { value: "562", label: "verified phone numbers" },
@@ -267,6 +307,12 @@ export const systems: DeepProject[] = [
       "Every creator eventually gets asked by a brand to prove their audience, and the honest answer is usually scattered across four apps that do not talk to each other. This puts 2,000 posts and 11.2 million views in one place. Feed it any video and it pulls the frames and a transcript, so you can see why a post landed rather than guessing.",
     nowWhat:
       "It is open source. Clone it, drop in your own exported data, build, and host it anywhere. A complete data product end to end, collection through analysis to a shipped interface, and one I was willing to publish rather than just describe.",
+    hardPart: {
+      problem:
+        "Four platforms, four different export formats, and no usable public way to pull a creator's full back catalogue.",
+      solution:
+        'Everything is normalized into a single post shape at ingest, so the analysis code never needs to know which platform a row came from and adding a fifth platform touches only the importer. It ships as static output, so anyone can run it on their own numbers without standing up infrastructure.',
+    },
     stats: [
       { value: "4", label: "platforms unified" },
       { value: "2.0K", label: "posts analyzed" },
@@ -299,6 +345,12 @@ export const systems: DeepProject[] = [
       "The studio was losing bookings to slow replies on the single channel their customers care about. Phone and email were not the problem to solve. Anything unusual goes to a person with the conversation attached, so nobody has to ask the customer to repeat themselves.",
     nowWhat:
       "Language handling and human handoff were designed in from the start rather than bolted on later, which is the difference between a bot customers tolerate and one they actually use. This pattern, the channel your customers already use answered instantly, is what most service businesses are really asking for.",
+    hardPart: {
+      problem:
+        'Language detection is unreliable on short messages, and real customers switch languages mid conversation. Getting it wrong on a one word reply means answering someone in a language they did not use.',
+      solution:
+        'Detection runs on every message but carries the last confident choice forward, so a bare “ok” cannot flip the conversation. Anything outside the service catalogue goes to a person with the thread attached rather than being guessed at.',
+    },
     stats: [
       { value: "2", label: "languages, auto-detected" },
       { value: "30", unit: "+", label: "services in catalog" },
@@ -335,6 +387,12 @@ export const platforms: DeepProject[] = [
       "Clinic software written for the US simply does not work here. The internet drops, so it has to keep working offline and catch up later. Staff and patients speak English, French, and Kinyarwanda, so it speaks all three. People pay by mobile money rather than card, tax filings go to the Rwanda Revenue Authority, and patient identity is read off a national ID card with the phone camera. Every one of those is a requirement, not a nice-to-have.",
     nowWhat:
       "The part clinicians feel every day: a provider talks through a visit out loud and it comes back as a structured medical note, charted on a body map instead of typed into a blank box. 71,600 lines showing what it takes to ship real clinical software against real constraints.",
+    hardPart: {
+      problem:
+        'Offline first is straightforward right up until two people edit the same record on different devices while disconnected. And because one system serves the whole clinic, a mistake in the data access rules is not a bug, it is the wrong staff member reading a patient file.',
+      solution:
+        'The access rules were tested adversarially rather than assumed correct, which surfaced three real permission bugs before launch. Sync conflicts resolve per record type instead of by one global rule, because a clinical note and a calendar slot should not merge the same way: notes append, scheduling takes the last write and leaves an audit trail.',
+    },
     stats: [
       { value: "71,600", unit: "+", label: "lines of code" },
       { value: "9", label: "full modules" },
@@ -384,6 +442,12 @@ export const platforms: DeepProject[] = [
       "Deal sourcing is mostly unglamorous volume: find the companies, rank them, stay in touch for a year or more, and respond to every reply. That work is what gets dropped when a principal gets busy, and dropping it is what kills a pipeline. The agent absorbs the volume and the judgment stays with the human.",
     nowWhat:
       "The approval queue is the entire design. Nothing sends without someone clicking yes. An agent that drafts and waits keeps getting used; an agent that sends on its own gets switched off after the first embarrassing email.",
+    hardPart: {
+      problem:
+        'An agent that sends email on its own gets switched off after the first embarrassing message. An agent whose drafts need heavy editing gets abandoned because it is slower than writing the email yourself. Most outreach tools die on one horn or the other.',
+      solution:
+        'The approval queue had to be genuinely faster than the alternative, so each draft arrives with the full context attached and approving is one click. Nothing sends without a human yes. The overnight briefing exists so the principal starts the day already knowing what happened, instead of opening the tool to find out.',
+    },
     stats: [
       { value: "6", label: "industry ICP models" },
       { value: "12, 18", unit: "mo", label: "drip sequence arcs" },
@@ -425,6 +489,12 @@ export const platforms: DeepProject[] = [
       "Her intake questionnaires already existed on paper and already worked, so they were digitized as they were rather than replaced with a generic CRM she would have to fight. Legal payments also carry rules other payments do not: money held in trust for a client cannot be mixed with the firm's own, which is why payments run through LawPay rather than a standard processor.",
     nowWhat:
       "She owns the login system and the database. A practice that holds client confidences should not have the record of them sitting inside a vendor's tenant, and that is a decision far easier to make upfront than to reverse three years in.",
+    hardPart: {
+      problem:
+        "Legal payments carry rules ordinary payments do not: money held in trust for a client cannot be mixed with the firm's own funds. Getting that wrong is not a bug report, it is a bar complaint.",
+      solution:
+        'Payments run through a processor built specifically for legal trust accounting rather than a general one, so the separation is handled by something already audited for it. Her intake questionnaires were digitized exactly as they already existed rather than replaced with a generic CRM she would spend a year fighting.',
+    },
     stats: [
       { value: "21", label: "entities managed" },
       { value: "4", label: "practice areas served" },
@@ -465,6 +535,12 @@ export const platforms: DeepProject[] = [
       "In software that serves many customers from one system, the expensive bug is one customer seeing another's data. The usual defence is remembering to add a filter to every single query, which works right up until someone forgets. Here the separation is enforced by the database itself, so a query that would leak data simply returns nothing.",
     nowWhat:
       "That choice means a mistake is one policy to fix rather than an audit of every query in the application. And because I run my own work on it, I find the rough edges before a client does.",
+    hardPart: {
+      problem:
+        "When one system serves many clients, the expensive bug is one client seeing another's data. The usual defence is remembering to add a filter to every query, which holds right up until somebody forgets on a Friday afternoon.",
+      solution:
+        "Isolation is enforced by the database itself, so a query that would leak simply returns nothing rather than depending on anyone's discipline. Destructive maintenance scripts are gated behind explicit environment checks on the same principle: the fix for that class of mistake is making it impossible, not being careful.",
+    },
     stats: [
       { value: "Multi", label: "tenant isolation" },
       { value: "RLS", label: "enforced at the database" },
