@@ -113,12 +113,24 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <section className={`${project.image ? "bg-surface" : ""}`}>
           <div className="mx-auto w-full max-w-5xl px-6 py-16 md:py-20">
             <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_16rem] md:gap-16">
-              <Reveal className="space-y-5">
-                {project.body.map((para) => (
-                  <p key={para.slice(0, 40)} className="text-ink/80 text-lg leading-relaxed">
-                    {para}
-                  </p>
-                ))}
+              {/*
+                What / so what. The third beat, "now what", gets the dark band
+                further down so the page ends on the takeaway rather than on
+                detail.
+              */}
+              <Reveal className="space-y-9">
+                <div>
+                  <h2 className="text-muted font-mono text-[11px] tracking-[0.16em] uppercase">
+                    What it is
+                  </h2>
+                  <p className="text-ink/85 mt-3 text-lg leading-relaxed">{project.what}</p>
+                </div>
+                <div>
+                  <h2 className="text-muted font-mono text-[11px] tracking-[0.16em] uppercase">
+                    Why it matters
+                  </h2>
+                  <p className="text-ink/85 mt-3 text-lg leading-relaxed">{project.soWhat}</p>
+                </div>
               </Reveal>
 
               <Reveal delay={100}>
@@ -211,10 +223,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               <span
                 className={`font-mono text-xs tracking-[0.18em] uppercase ${accentTextDark[project.accent]}`}
               >
-                What it proves
+                So what now
               </span>
-              <p className="font-display mt-5 max-w-[34ch] text-2xl leading-[1.25] font-semibold tracking-tight md:text-4xl">
-                {project.proves}
+              <p className="font-display mt-5 max-w-[36ch] text-2xl leading-[1.25] font-semibold tracking-tight text-balance md:text-4xl">
+                {project.nowWhat}
               </p>
             </Reveal>
           </div>

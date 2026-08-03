@@ -43,15 +43,29 @@ export type DeepProject = {
   title: string;
   /** One line used on cards and in the page sub-head */
   summary: string;
-  /** Long form, renders as the opening paragraphs of the detail page */
-  body: string[];
+
+  /*
+   * WHAT / SO WHAT / NOW WHAT.
+   *
+   * Three required fields rather than one free-form body, because a prose
+   * field drifts back into a feature list. Every project must answer all
+   * three, and all three must land for two readers at once: someone with no
+   * technical background, and a technical hiring manager. That means plain
+   * words in the sentences; the precision lives in `stats` and `stack`.
+   */
+
+  /** Plain language: what the thing is and what it does. No jargon. */
+  what: string;
+  /** Why it matters: the real cost, risk, or constraint it addresses. */
+  soWhat: string;
+  /** What it proves or unlocks. Renders in the pulled-out dark band. */
+  nowWhat: string;
+
   stats: Stat[];
   stack: string[];
   /** Section heading for the module list, e.g. "The nine modules" */
   modulesTitle?: string;
   modules?: Module[];
-  /** The engineering claim. Renders in a pulled-out block. */
-  proves: string;
   /**
    * Non-negotiable honesty or compliance note. Rendered on both the card
    * and the detail page. Never remove one of these without asking Phil.
@@ -92,12 +106,12 @@ export const systems: DeepProject[] = [
     tier: "system",
     kicker: "Autonomous agents · Research",
     title: "Multi-Agent Trading Simulator",
-    summary:
-      "Four independent agents trading their own books on a two minute loop, unattended, for months.",
-    body: [
-      "Four independent AI agents, one each for equities, options, futures, and forex, every one running its own budget, strategy, and risk rules. They scan markets on a two minute loop, open and close their own positions, and write every decision to a live ledger.",
-      "Each agent keeps a per instrument track record that feeds back into what it is willing to trade next, so a losing pattern gets down weighted without anyone touching it. The interesting engineering is not the strategy, it is the autonomy: what happens to an agent over months with no human in the loop, and whether it can recover from its own bad decisions.",
-    ],
+    summary: "Four AI traders left alone for months, to find out what breaks.",
+    what: "Four AI traders, each with its own money, its own rules, and its own market: stocks, options, futures, and currencies. Every two minutes they check prices, decide what to buy or sell, and write down every decision they make. Nobody supervises them.",
+    soWhat:
+      "Most AI demos run for a minute with a person watching. The hard part is month three, when a data feed goes bad, an API goes down, or the agent makes a run of bad calls. This is a rig built to find out what happens then. Each agent keeps its own scorecard, so a losing pattern gets down-weighted automatically without anyone stepping in.",
+    nowWhat:
+      "It shows that agents can run unattended for months and recover from real failures, including their own mistakes. That is the line between an AI demo and an AI system you can leave running.",
     stats: [
       { value: "4", label: "autonomous agents" },
       { value: "24/7", label: "unattended uptime" },
@@ -110,8 +124,6 @@ export const systems: DeepProject[] = [
       "Feedback weighting",
       "Failure recovery",
     ],
-    proves:
-      "Long running agents that survive real world failure, meaning API outages, bad data, and their own mistakes, and keep operating correctly for months unattended.",
     guard: {
       lead: "Simulated capital, by design.",
       text: "This is a research rig for agent autonomy: how agents behave over months without a human, how they recover from their own bad decisions, and how they self correct. It is not a financial product, and I do not sell trading advice.",
@@ -123,12 +135,12 @@ export const systems: DeepProject[] = [
     tier: "system",
     kicker: "RAG · Knowledge graph",
     title: "Operational Memory Graph",
-    summary:
-      "Hybrid search over a quarter million engineering messages, re-embeddable for about the price of a coffee.",
-    body: [
-      "Every engineering session I run gets ingested into a searchable knowledge base: full text and semantic search over a quarter million messages, AI written summaries, and a visual graph of how the work connects.",
-      "It maintains itself. A nightly job ingests, summarizes, embeds, and tiers older data to cold storage without anyone touching it. Summarization and embeddings run on Cloudflare Workers AI rather than a per token API, which is the reason re embedding the entire corpus costs about a dollar forty instead of a monthly invoice.",
-    ],
+    summary: "A searchable memory of a quarter million engineering messages, for about a dollar.",
+    what: "A searchable memory of every engineering session I run. Around a quarter million messages, findable both by exact words and by meaning, with AI-written summaries and a map showing how the work connects. A nightly job keeps it current and moves older material to cheap storage on its own.",
+    soWhat:
+      "Most companies sit on years of conversations and documents nobody can find. The usual fix is to pay an AI provider by the word, which gets expensive the moment the archive is large enough to be worth searching. This one runs on Cloudflare's edge instead, so re-reading and re-indexing the entire archive costs about a dollar forty rather than a recurring invoice.",
+    nowWhat:
+      "This is the exact stack behind the phrase everyone wants, search your company's knowledge: embeddings, hybrid search, summarization, and storage tiering. Built and running at real scale, not sketched in a notebook.",
     stats: [
       { value: "212K", unit: "+", label: "messages indexed" },
       { value: "65,924", label: "vector embeddings" },
@@ -142,8 +154,6 @@ export const systems: DeepProject[] = [
       "Storage tiering",
       "Nightly ingest",
     ],
-    proves:
-      "The retrieval stack behind searching a company's own knowledge: embeddings, hybrid search, summarization, and storage tiering, built and running at real scale rather than in a notebook.",
     guard: {
       lead: "Runs on edge inference, not per-token API bills.",
       text: "No screenshots of this one. The corpus holds real engineering session transcripts, so the system is described rather than shown.",
@@ -155,12 +165,12 @@ export const systems: DeepProject[] = [
     tier: "system",
     kicker: "Infrastructure · Data acquisition",
     title: "Resilient Acquisition Engine",
-    summary:
-      "Declarative collection jobs that escalate through heavier fetch strategies only when a source pushes back.",
-    body: [
-      "The data layer under my lead generation and pricing products. Jobs are declared in config, not code. Each one escalates through progressively heavier fetch strategies only when a source pushes back, governs its own request rate per domain, routes through rotating egress, and keeps dedupe state so a monitor run surfaces only what is genuinely new.",
-      "The overwhelming majority of runs complete on the lightest tier against public and government sources, which keeps a full nationwide sweep under a few dollars a month in egress.",
-    ],
+    summary: "Daily public-record collection across 30 markets, for a few dollars a month.",
+    what: "The data collection layer underneath my lead-generation and pricing products. It gathers public listings from 30 markets every day, keeps 1,406 records current, and only reports what has actually changed since the last run.",
+    soWhat:
+      "Websites push back on automated collection, and the common answer is to use the heaviest, most expensive method on every single request. This one starts with the lightest approach and only escalates when a source actually resists, paces itself per site, and remembers what it has already seen. Nearly every run finishes on the cheapest tier, which is why a nationwide daily sweep costs a few dollars a month instead of hundreds.",
+    nowWhat:
+      "New sources are added by writing a config entry, not new code, and 87 tests keep it honest. It is collection infrastructure that survives contact with the real internet and stays maintainable a year later.",
     stats: [
       { value: "30", label: "markets, daily" },
       { value: "1,406", label: "live records maintained" },
@@ -173,8 +183,6 @@ export const systems: DeepProject[] = [
       "Rotating egress",
       "Dedupe state",
     ],
-    proves:
-      "Collection infrastructure that survives contact with the real internet, meaning rate limits, shape changes, and flaky sources, and stays maintainable because the jobs are declarative.",
     guard: {
       lead: "Cheap on purpose.",
       text: "Sources and evasion methods stay in house. The engineering claim is the architecture, not the target list.",
@@ -186,13 +194,12 @@ export const systems: DeepProject[] = [
     tier: "system",
     kicker: "Conversational AI · Concept demo",
     title: "WhatsApp Customer-Service Agent",
-    summary:
-      "An agent that knows the limits of its own authority, with a second AI grading every finished conversation.",
-    body: [
-      "Built to answer the question airlines lose customers over: what happens when nobody replies. It handles cancellations, refunds, baggage claims, and disruptions over WhatsApp, and every incoming message is classified in real time on four axes at once: the right service desk, how urgent it is, how the customer feels, and whether there is legal or regulatory risk in the wording.",
-      "Anything it should not answer alone opens a tracked case and pulls in a human, who can take the conversation over mid thread. A second AI then grades every finished conversation on empathy, accuracy, resolution, efficiency, and compliance, so quality is measured across all of them rather than on a sampled few.",
-      "It exists because I spent two days trying to reach a person about cancelling a flight, then waited another forty business days for the refund. That is two months of real time. This is that experience rebuilt as software that answers in seconds.",
-    ],
+    summary: "An agent that answers in seconds, and knows when to hand you to a human.",
+    what: "A support agent that answers airline customers on WhatsApp: cancellations, refunds, lost bags, delays. It reads each message and works out four things at once. Which desk should handle this, how urgent is it, how upset is this person, and is there legal risk in how they worded it. Anything it should not answer alone opens a case and pulls in a human, who can take over mid conversation with the full thread attached.",
+    soWhat:
+      "I spent two days trying to reach a person about cancelling a flight, then waited another forty business days for the refund. Two months of real time. This agent replies in about 1.8 seconds. And because a second AI grades every finished conversation on empathy, accuracy, resolution, efficiency, and compliance, quality gets measured on all of them instead of the handful a supervisor happens to sample.",
+    nowWhat:
+      "The useful part is not that it answers. It is that it knows when to stop. An agent that recognizes the limit of its own authority is the difference between one you can put in front of customers and one you cannot.",
     stats: [
       { value: "8", label: "service desks routed" },
       { value: "1.8", unit: "s", label: "average first reply" },
@@ -206,8 +213,6 @@ export const systems: DeepProject[] = [
       "LLM-as-judge grading",
       "Groq inference",
     ],
-    proves:
-      "An AI agent that knows the limits of its own authority: it resolves what it can and escalates what it should not touch, with the full conversation handed to the person taking over.",
     guard: {
       lead: "Concept demo, not a client engagement.",
       text: "Built for myself and branded for the airline where the experience happened. They are not a customer, and nothing here uses real passenger data.",
@@ -227,12 +232,12 @@ export const systems: DeepProject[] = [
     tier: "system",
     kicker: "Data engineering · Entity resolution",
     title: "Public-Records Contact Resolution",
-    summary:
-      "Turning an LLC on a deed into a reachable human, across state registries, where commercial skip trace returns nothing.",
-    body: [
-      "A pipeline that turns a business entity into a real person you can actually reach. Commercial skip trace services return nothing useful when the owner of record is an LLC, so I built the chain myself: identify the entity across state registries, extract the officer behind it, then resolve that person to current contact details.",
-      "Multi state, fully automated, and built on lawful public record. The measure that matters is verified contacts, not rows scraped.",
-    ],
+    summary: "Turning a company name on a public record into a person you can actually call.",
+    what: "A pipeline that turns a company name on a public record into a real person you can pick up the phone and call. When a property is owned by an LLC rather than a human being, this works out who is actually behind it.",
+    soWhat:
+      "Paid lookup services return nothing useful the moment the owner is an LLC, which describes most of the records worth looking at. So I built the chain myself: find the company in state business registries, pull the name of the officer behind it, then match that person to current contact details. Across one batch of 2,746 records it resolved 64% and produced 562 verified phone numbers.",
+    nowWhat:
+      "This is data engineering where the easy path fails: sources that resist automation, records that need real parsing, and a result measured in people you can actually reach rather than rows downloaded.",
     stats: [
       { value: "2,746", label: "leads in one batch" },
       { value: "562", label: "verified phone numbers" },
@@ -245,8 +250,6 @@ export const systems: DeepProject[] = [
       "DNC scrubbing",
       "TCPA-aware rules",
     ],
-    proves:
-      "Data engineering where the easy path fails: sources that fight automation, records that need real parsing, and results measured in verified contacts rather than rows scraped.",
     guard: {
       lead: "Compliance built in, not bolted on.",
       text: "Do not call scrubbing, opt out handling, and TCPA aware outreach rules are part of the pipeline, because gathering the data and contacting the person are two very different legal questions. Methods and sources stay in house.",
@@ -258,12 +261,12 @@ export const systems: DeepProject[] = [
     tier: "system",
     kicker: "Open source · Creator analytics",
     title: "Social Analytics Command Center",
-    summary:
-      "A creator's full back catalog across four platforms, unified into what performs and when to post.",
-    body: [
-      "Built to answer the question every creator gets asked by brands: prove your audience. It ingests a creator's entire back catalog across Instagram, TikTok, YouTube, and Threads, then reports what actually performs, when to post, and which comments deserve a reply.",
-      "A brand deals tab tracks the partnership pipeline, and a content analyzer takes any video and pulls frames plus a transcript so you can see why a post landed. Clone the repo, drop your exported platform data into the data directory, build, and host the static output anywhere.",
-    ],
+    summary: "Four platforms, 2,000 posts, one answer to “prove your audience.”",
+    what: "A dashboard that pulls a creator's entire posting history off Instagram, TikTok, YouTube, and Threads, then shows what actually performs, when to post, and which comments are worth answering. A separate tab tracks brand deals through the pipeline.",
+    soWhat:
+      "Every creator eventually gets asked by a brand to prove their audience, and the honest answer is usually scattered across four apps that do not talk to each other. This puts 2,000 posts and 11.2 million views in one place. Feed it any video and it pulls the frames and a transcript, so you can see why a post landed rather than guessing.",
+    nowWhat:
+      "It is open source. Clone it, drop in your own exported data, build, and host it anywhere. A complete data product end to end, collection through analysis to a shipped interface, and one I was willing to publish rather than just describe.",
     stats: [
       { value: "4", label: "platforms unified" },
       { value: "2.0K", label: "posts analyzed" },
@@ -276,8 +279,6 @@ export const systems: DeepProject[] = [
       "Pipeline tracking",
       "pnpm",
     ],
-    proves:
-      "A full data product end to end, collection through analysis to a shipped interface, and one I was willing to open source rather than describe.",
     links: [
       {
         label: "View the repository",
@@ -292,11 +293,12 @@ export const systems: DeepProject[] = [
     tier: "system",
     kicker: "Client pilot · Concluded",
     title: "Bilingual WhatsApp Booking Agent",
-    summary:
-      "A receptionist on the channel customers actually use, with language detection and human handoff designed in.",
-    body: [
-      "A WhatsApp receptionist built for a wellness studio abroad, where WhatsApp rather than phone or email is how customers actually book. It detects which of two languages a customer is writing in and replies in kind, answers from the studio's full service and pricing catalog, hands off into their existing booking system, and escalates anything it should not handle to a human with the conversation attached.",
-    ],
+    summary: "A receptionist on WhatsApp that answers in whichever language you write in.",
+    what: "A receptionist for a wellness studio that works entirely over WhatsApp, because that is how their customers actually book. It notices which of two languages someone is writing in and answers in that one, quotes from the studio's full service and price list, and passes confirmed bookings into the system they already use.",
+    soWhat:
+      "The studio was losing bookings to slow replies on the single channel their customers care about. Phone and email were not the problem to solve. Anything unusual goes to a person with the conversation attached, so nobody has to ask the customer to repeat themselves.",
+    nowWhat:
+      "Language handling and human handoff were designed in from the start rather than bolted on later, which is the difference between a bot customers tolerate and one they actually use. This pattern, the channel your customers already use answered instantly, is what most service businesses are really asking for.",
     stats: [
       { value: "2", label: "languages, auto-detected" },
       { value: "30", unit: "+", label: "services in catalog" },
@@ -309,8 +311,6 @@ export const systems: DeepProject[] = [
       "Booking handoff",
       "Human escalation",
     ],
-    proves:
-      "Conversational AI on the channel that actually converts, with language handling and human handoff designed in from the start rather than bolted on.",
     guard: {
       lead: "Ran in production with real customers.",
       text: "A pilot engagement that has since concluded, kept anonymous at the client's level of permission. Included because it is the pattern most service businesses ask for: the channel your customers already use, answered instantly, with a human always one tap away.",
@@ -329,12 +329,12 @@ export const platforms: DeepProject[] = [
     tier: "platform",
     kicker: "Healthcare platform · Kigali, Rwanda",
     title: "Life Chiro PMS",
-    summary:
-      "Web dashboard, native mobile app, and patient portal in one offline-first, trilingual codebase.",
-    body: [
-      "A complete practice management system for a chiropractic clinic in Rwanda: web dashboard, native mobile app, and patient portal in one codebase. Offline first for unreliable connectivity, trilingual across English, French, and Kinyarwanda, and compliant with Rwanda's tax, ID, and payment rails.",
-      "The AI piece is the part clinicians actually feel: a provider dictates a note and it comes back as structured SOAP documentation, charted against an interactive body map rather than typed into a text box.",
-    ],
+    summary: "Everything a Rwandan clinic runs on: staff dashboard, phone app, patient portal.",
+    what: "The complete software a chiropractic clinic in Rwanda runs on. A dashboard for staff, an app for phones, and a portal for patients, all built from one codebase. Nine modules cover the whole clinic, from booking a visit through to running payroll.",
+    soWhat:
+      "Clinic software written for the US simply does not work here. The internet drops, so it has to keep working offline and catch up later. Staff and patients speak English, French, and Kinyarwanda, so it speaks all three. People pay by mobile money rather than card, tax filings go to the Rwanda Revenue Authority, and patient identity is read off a national ID card with the phone camera. Every one of those is a requirement, not a nice-to-have.",
+    nowWhat:
+      "The part clinicians feel every day: a provider talks through a visit out loud and it comes back as a structured medical note, charted on a body map instead of typed into a blank box. 71,600 lines showing what it takes to ship real clinical software against real constraints.",
     stats: [
       { value: "71,600", unit: "+", label: "lines of code" },
       { value: "9", label: "full modules" },
@@ -363,8 +363,6 @@ export const platforms: DeepProject[] = [
       { name: "Reporting & analytics", detail: "clinical and financial dashboards" },
       { name: "Administration", detail: "roles, permissions, multi-tenant settings" },
     ],
-    proves:
-      "Shipping a real clinical system against real constraints: intermittent connectivity, three languages, and a national tax and identity stack that does not look like the US one.",
     links: [
       {
         label: "Open the live demo",
@@ -380,12 +378,12 @@ export const platforms: DeepProject[] = [
     tier: "platform",
     kicker: "AI · Private equity & M&A",
     title: "DealFlow, AI Deal Origination Engine",
-    summary:
-      "An agent that grades thousands of companies against a weighted ICP, then drafts every email for one-click human approval.",
-    body: [
-      "A sourcing machine for M&A advisors and private equity firms. An AI agent pulls thousands of companies, grades each one against a weighted ideal client profile per industry, runs twelve and eighteen month drip campaigns, and drafts every email and reply for one click human approval.",
-      "The design constraint that shaped everything: nothing sends without a human yes. The agent does the volume work and the judgment stays with the principal, who gets an overnight briefing telling them exactly what happened while they slept.",
-    ],
+    summary: "An agent that finds and grades acquisition targets, then waits for a human yes.",
+    what: "A sourcing machine for firms that buy companies. An AI agent pulls in thousands of businesses, grades each one from A to D against what that particular firm is actually looking for, and writes every outreach email and every reply. A briefing lands each morning covering what happened overnight.",
+    soWhat:
+      "Deal sourcing is mostly unglamorous volume: find the companies, rank them, stay in touch for a year or more, and respond to every reply. That work is what gets dropped when a principal gets busy, and dropping it is what kills a pipeline. The agent absorbs the volume and the judgment stays with the human.",
+    nowWhat:
+      "The approval queue is the entire design. Nothing sends without someone clicking yes. An agent that drafts and waits keeps getting used; an agent that sends on its own gets switched off after the first embarrassing email.",
     stats: [
       { value: "6", label: "industry ICP models" },
       { value: "12, 18", unit: "mo", label: "drip sequence arcs" },
@@ -410,8 +408,6 @@ export const platforms: DeepProject[] = [
       { name: "Deal pipeline", detail: "first touch through signed engagement letter" },
       { name: "Overnight briefing", detail: "proactive agent report every morning" },
     ],
-    proves:
-      "An agent workflow with a human approval gate that people actually keep using, because the queue is faster than writing the email yourself.",
     links: [
       { label: "Open the live demo", href: "https://dealflow-engine.vercel.app", kind: "primary" },
     ],
@@ -423,12 +419,12 @@ export const platforms: DeepProject[] = [
     tier: "platform",
     kicker: "Legal tech · Solo practice",
     title: "Counsel Stack",
-    summary:
-      "One login replacing the spreadsheet sprawl of a growing solo practice, with trust-account-safe payments.",
-    body: [
-      "An operating system for a solo attorney's entire practice: client intake built from her real questionnaires, a registered agent book managing twenty one business entities, secure client accounts, and payments wired through LawPay.",
-      "The build decision worth noting is that she owns the auth and the database. A practice holding client confidences should not have its record of them living inside someone else's SaaS tenant.",
-    ],
+    summary: "One login replacing the spreadsheet sprawl of a growing solo law practice.",
+    what: "One login that replaces the pile of spreadsheets a growing solo law practice accumulates. Client intake, a register of the 21 business entities she acts as agent for, a dashboard of every open matter, secure document exchange, and payments.",
+    soWhat:
+      "Her intake questionnaires already existed on paper and already worked, so they were digitized as they were rather than replaced with a generic CRM she would have to fight. Legal payments also carry rules other payments do not: money held in trust for a client cannot be mixed with the firm's own, which is why payments run through LawPay rather than a standard processor.",
+    nowWhat:
+      "She owns the login system and the database. A practice that holds client confidences should not have the record of them sitting inside a vendor's tenant, and that is a decision far easier to make upfront than to reverse three years in.",
     stats: [
       { value: "21", label: "entities managed" },
       { value: "4", label: "practice areas served" },
@@ -444,8 +440,6 @@ export const platforms: DeepProject[] = [
       { name: "Client portal", detail: "secure document exchange" },
       { name: "Own auth & database", detail: "her data, not a SaaS vendor's" },
     ],
-    proves:
-      "Domain software built from a practitioner's real paperwork rather than a generic CRM bent into shape, including the compliance edges that make legal payments different.",
     guard: {
       lead: "Client system, kept anonymous.",
       text: "The live practice and its client data are not linked or named anywhere. The demo below is an anonymized copy loaded with a fictional firm.",
@@ -465,12 +459,12 @@ export const platforms: DeepProject[] = [
     tier: "platform",
     kicker: "SaaS · Marketing operations",
     title: "Intellovate Command",
-    summary:
-      "Multi-tenant marketing operations on Next.js and Supabase, with row-level-security isolation, in production.",
-    body: [
-      "My own multi tenant marketing operations platform, running in production. Each client gets an isolated workspace for campaigns, content, and reporting, with row level security doing the isolation at the database rather than in application code.",
-      "The same system I use to run engagements is the product itself, which means every rough edge gets found by me before a tenant finds it.",
-    ],
+    summary: "The platform my own client work runs on, with tenant isolation enforced by the database.",
+    what: "The marketing operations platform my own client engagements run on. Every client gets their own walled-off workspace for campaigns, content, and reporting, and none of them can see another's.",
+    soWhat:
+      "In software that serves many customers from one system, the expensive bug is one customer seeing another's data. The usual defence is remembering to add a filter to every single query, which works right up until someone forgets. Here the separation is enforced by the database itself, so a query that would leak data simply returns nothing.",
+    nowWhat:
+      "That choice means a mistake is one policy to fix rather than an audit of every query in the application. And because I run my own work on it, I find the rough edges before a client does.",
     stats: [
       { value: "Multi", label: "tenant isolation" },
       { value: "RLS", label: "enforced at the database" },
@@ -484,8 +478,6 @@ export const platforms: DeepProject[] = [
       { name: "Content pipeline", detail: "drafts, approval, scheduled" },
       { name: "Client reporting", detail: "white-labeled performance views" },
     ],
-    proves:
-      "Multi tenancy done at the database layer, where a bug is a policy fix rather than an audit of every query in the app.",
     links: [
       {
         label: "Open the live demo",
@@ -508,7 +500,7 @@ export const builds: Build[] = [
     kind: "Prescription savings lookup",
     category: "Healthcare",
     blurb:
-      "Free prescription savings lookup: searches 75 brand-name medications against manufacturer copay cards and patient assistance programs, so people stop overpaying at the pharmacy counter.",
+      "Type in your medication and it checks 75 brand-name drugs against the discount programs the manufacturers already run, so people stop overpaying at the pharmacy counter.",
     href: "https://scriptsaver.io",
     domain: "scriptsaver.io",
     image: "/shots/scriptsaver.jpg",
@@ -518,7 +510,7 @@ export const builds: Build[] = [
     kind: "AI fleet sourcing SaaS",
     category: "AI & SaaS",
     blurb:
-      "Done-for-you fleet growth engine that sources cars and the rideshare drivers to fill them, live and delivering leads today.",
+      "Finds cars worth buying and the rideshare drivers to put in them, so a fleet owner grows both sides at once. Live and sending leads today.",
     href: "https://fleetagent.co",
     domain: "fleetagent.co",
     image: "/shots/fleetagent.jpg",
@@ -528,7 +520,7 @@ export const builds: Build[] = [
     kind: "AI watch-sourcing SaaS",
     category: "AI & SaaS",
     blurb:
-      "Secondary-market watch sourcing engine that scans live listings, filters counterfeits, and ranks genuine deals by margin behind a members paywall.",
+      "Watches the used luxury watch market all day, filters out the fakes, and ranks what is left by how much profit is in it. Members only.",
     href: "https://caliber-web-ten.vercel.app",
     domain: "caliber-web-ten.vercel.app",
     image: "/shots/caliber.jpg",
@@ -538,7 +530,7 @@ export const builds: Build[] = [
     kind: "Under-market car deal flow",
     category: "Automotive",
     blurb:
-      "Deal-flow platform for car flippers: every under-market car in Georgia, scored and ranked, behind a client portal.",
+      "Every car in Georgia listed for less than it is worth, scored and ranked in one place, so flippers stop refreshing listings all day.",
     href: "https://peachflips.vercel.app",
     domain: "peachflips.vercel.app",
     image: "/shots/peachflips.jpg",
@@ -548,7 +540,7 @@ export const builds: Build[] = [
     kind: "Luxury car sourcing SaaS",
     category: "Automotive",
     blurb:
-      "Exotic-car sourcing engine: scrapes live nationwide listings, fits a fair-value model per model line, and ranks every car by margin in an operator console.",
+      "Tracks exotic cars for sale nationwide, works out what each model is genuinely worth, and ranks every listing by the money left on the table.",
     href: "https://marque-demo.vercel.app/dashboard.html",
     domain: "marque-demo.vercel.app",
     image: "/shots/marque.jpg",
@@ -558,7 +550,7 @@ export const builds: Build[] = [
     kind: "Seller-finance deal scanner",
     category: "Real estate",
     blurb:
-      "Pulls owner-financed listings across seven metros, scores each on cash flow, and only calls it a match when the financed payment clears market rent.",
+      "Finds homes whose owners will finance the sale themselves, across seven cities, and only flags one when the monthly payment lands below what the place would rent for.",
     href: "https://sellerfi-app.vercel.app",
     domain: "sellerfi-app.vercel.app",
     image: "/shots/sellerfi.jpg",
@@ -568,7 +560,7 @@ export const builds: Build[] = [
     kind: "Financial freedom calculator",
     category: "Fintech",
     blurb:
-      "Interactive calculator that hands users their personal financial freedom plan in about 60 seconds.",
+      "Answer a few questions and it gives you the number you need to stop working, and how long it takes to get there. About 60 seconds.",
     href: "https://freedom-numbers.vercel.app",
     domain: "freedom-numbers.vercel.app",
     image: "/shots/freedom-numbers.jpg",
@@ -577,7 +569,7 @@ export const builds: Build[] = [
     name: "Freedom Numbers: Students",
     kind: "Career path comparison tool",
     category: "Fintech",
-    blurb: "Career-path router that shows students where each path actually leads, in numbers.",
+    blurb: "Shows students what each career path actually pays, what it costs to get there, and where they end up in ten years.",
     href: "https://freedom-numbers-students.vercel.app",
     domain: "freedom-numbers-students.vercel.app",
     image: "/shots/freedom-students.jpg",
@@ -587,7 +579,7 @@ export const builds: Build[] = [
     kind: "Exotic car rental funnel",
     category: "Automotive",
     blurb:
-      "Exotic car experience site built as a request funnel that turns browsers into booked drives.",
+      "An exotic car rental site built as one straight path from browsing to a booked drive.",
     href: "https://dreamdrivesatl.com",
     domain: "dreamdrivesatl.com",
     image: "/shots/dream-drives.jpg",
@@ -597,7 +589,7 @@ export const builds: Build[] = [
     kind: "Corporate concierge brand site",
     category: "Brand & services",
     blurb:
-      "Corporate concierge brand with a conversion-first landing page and a live request timeline.",
+      "A corporate concierge brand where clients watch their request move through each stage instead of wondering where it stands.",
     href: "https://timesquared-revamp.vercel.app",
     domain: "timesquared-revamp.vercel.app",
     image: "/shots/timesquared.jpg",
@@ -607,7 +599,7 @@ export const builds: Build[] = [
     kind: "Fine jewelry catalog site",
     category: "Brand & services",
     blurb:
-      "Diamond atelier site presenting 500+ signature styles with emerald and gold editorial design and a catalog request flow.",
+      "A fine jewelry catalog of 500+ styles, designed to read like a magazine spread rather than a storefront.",
     href: "https://colorq-mockup.vercel.app",
     domain: "colorq-mockup.vercel.app",
     image: "/shots/colorq.jpg",
@@ -617,7 +609,7 @@ export const builds: Build[] = [
     kind: "Aerial cinematography booking",
     category: "Brand & services",
     blurb:
-      "FAA-licensed aerial cinematography brand where the video does the selling and the booking flow does the rest.",
+      "A licensed drone filming business where the reel does the selling and booking takes one step.",
     href: "https://cinematicphilms.com",
     domain: "cinematicphilms.com",
     image: "/shots/cinematic.jpg",
@@ -626,7 +618,7 @@ export const builds: Build[] = [
     name: "Bel4 Vending",
     kind: "Micro-market vending site",
     category: "Brand & services",
-    blurb: "Vending services company on a fully custom-coded theme with hardened contact forms.",
+    blurb: "A vending company site coded from scratch rather than dropped onto a template, with contact forms that hold up against spam bots.",
     href: "https://bel4vending.com",
     domain: "bel4vending.com",
     image: "/shots/bel4.jpg",
@@ -636,7 +628,7 @@ export const builds: Build[] = [
     kind: "Medical wig studio site",
     category: "Healthcare",
     blurb:
-      "Medical wig studio with warm, personal branding and a consultation pipeline wired straight into the owner's inbox.",
+      "A studio making wigs for people losing their hair to illness. Warm branding, and every consultation request lands straight in the owner's inbox.",
     href: "https://ckkbinc.com",
     domain: "ckkbinc.com",
     image: "/shots/ckkb.jpg",
@@ -645,7 +637,7 @@ export const builds: Build[] = [
     name: "Erason Partners",
     kind: "Construction estimating site",
     category: "Brand & services",
-    blurb: "Construction cost-estimating firm site built to win commercial bids and inquiries.",
+    blurb: "A construction cost-estimating firm's site, built to win commercial bids by putting the numbers and the track record where buyers look first.",
     href: "https://erasonpartners.com",
     domain: "erasonpartners.com",
     image: "/shots/erason.jpg",
@@ -654,7 +646,7 @@ export const builds: Build[] = [
     name: "Global Abiding Hope",
     kind: "Nonprofit donation site",
     category: "Nonprofit",
-    blurb: "501(c)(3) organization site with clear mission storytelling and donation pathways.",
+    blurb: "A nonprofit's site that explains the mission in plain words and makes donating take two clicks.",
     href: "https://globalabidinghope.org",
     domain: "globalabidinghope.org",
     image: "/shots/abiding-hope.jpg",
@@ -663,7 +655,7 @@ export const builds: Build[] = [
     name: "Finance With Phil",
     kind: "Financial education nonprofit",
     category: "Nonprofit",
-    blurb: "Financial education nonprofit with programs, community, and a free tools ecosystem.",
+    blurb: "A nonprofit teaching money basics, with free programs, a community, and calculators anyone can use.",
     href: "https://financewithphil.org",
     domain: "financewithphil.org",
     image: "/shots/fwp.jpg",
