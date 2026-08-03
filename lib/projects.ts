@@ -192,7 +192,7 @@ export const systems: DeepProject[] = [
   {
     slug: "airline-support-agent",
     tier: "system",
-    kicker: "Conversational AI · Concept demo",
+    kicker: "Conversational AI · Built on spec",
     title: "WhatsApp Customer-Service Agent",
     summary: "An agent that answers in seconds, and knows when to hand you to a human.",
     what: "A support agent that answers airline customers on WhatsApp: cancellations, refunds, lost bags, delays. It reads each message and works out four things at once. Which desk should handle this, how urgent is it, how upset is this person, and is there legal risk in how they worded it. Anything it should not answer alone opens a case and pulls in a human, who can take over mid conversation with the full thread attached.",
@@ -214,8 +214,8 @@ export const systems: DeepProject[] = [
       "Groq inference",
     ],
     guard: {
-      lead: "Concept demo, not a client engagement.",
-      text: "Built for myself and branded for the airline where the experience happened. They are not a customer, and nothing here uses real passenger data.",
+      lead: "Built unprompted, then sent to their team.",
+      text: "Nobody asked for this. After my own refund ordeal I built it, branded the demo for the airline it happened with, and sent it to their team to see what comes back. They are not a client, and nothing here uses real passenger data.",
     },
     links: [
       {
