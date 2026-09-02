@@ -873,18 +873,18 @@ export const operations: Operation[] = [
   },
   {
     slug: "voice-intake",
-    kicker: "Voice agents · Live calls",
-    title: "A voice agent that runs intake and writes its own call summary",
+    kicker: "Voice agents · Bake-off",
+    title: "Two voice stacks tested against each other, the better one shipped",
     summary:
-      "An inbound agent that answers, routes the caller to the right lane, runs the intake questions, and writes a structured summary back to the CRM record before the next call comes in.",
+      "An inbound agent that answers, routes the caller to the right lane, runs intake, and writes a structured summary back to the CRM record. Two platforms were built out and compared on real calls before either was trusted with a lead.",
     constraint:
-      "A voice agent's dangerous failure is not silence, it is sounding successful while doing nothing: telling a caller they are booked when nothing ever reached the calendar. Models also drift once a prompt passes about twelve thousand characters, and a rule buried inside a branch gets skipped exactly when pressure is highest. The platform draws its own line too, writing the agent's prompt through the API but refusing to attach its booking action, so part of the system is configuration no script can own.",
+      "A voice agent's dangerous failure is not silence, it is sounding successful while doing nothing: telling a caller they are booked when nothing ever reached the calendar. Choosing a platform on a demo call hides exactly that. Models also drift once a prompt passes about twelve thousand characters, and a rule buried inside a branch gets skipped precisely when pressure is highest.",
     approach:
-      "Load-bearing absolutes sit in a numbered block at the very top of the prompt, ahead of every branch, and branches reference rules by number rather than restating them. Confident booking language is permitted only when the booking call actually returned success; otherwise the agent falls back to an honest callback promise, so the failure mode is under-claiming rather than a caller who believes they have an appointment. Routing happens by asking in the greeting, because contact tags do not render inside a voice prompt at all, and one question is faster than a lookup anyway.",
+      "A custom stack was assembled first, with its own model, voice, and transcription, then compared against the platform's native agent on real calls rather than on marketing pages. The custom build lost: the integrated one held a conversation better and, more importantly, kept the transcript and summary attached to the contact record without a synchronization layer that could silently fall behind. Load-bearing absolutes then moved into a numbered block at the top of the prompt, ahead of every branch, with branches referencing rules by number rather than restating them. Confident booking language is permitted only when the booking call actually returned success, so the failure mode is under-claiming rather than a caller who believes they have an appointment.",
     stats: [
+      { value: "2", label: "stacks built and compared" },
       { value: "3", label: "lanes routed by one agent" },
       { value: "12", unit: "k", label: "prompt drift threshold" },
-      { value: "1", label: "question routes the call" },
     ],
     stack: [
       "Native voice agent",
@@ -893,30 +893,54 @@ export const operations: Operation[] = [
       "CRM write-back",
       "Calendar booking",
     ],
+    caught: [
+      {
+        label: "The stack that demoed well and lost on real calls",
+        detail:
+          "A hand-assembled voice stack sounded fine in isolation but was beaten by the integrated platform once both were put on live calls, mostly because transcripts and summaries landed on the contact record natively instead of through a sync that could quietly drift. Building the loser was what made the choice defensible.",
+      },
+      {
+        label: "Routing that read a tag which never rendered",
+        detail:
+          "Contact tags do not interpolate inside a voice prompt, so tag-based routing silently fell through to a default. Asking the question in the greeting costs one turn, cannot fail quietly, and sounds more human than a lookup.",
+      },
+    ],
     guard:
       "Tested with an adversarial caller before it took a real call, because a guardrail only counts if it holds when the caller wants it crossed. The failure mode designed against is an agent that is too helpful: quoting a price, promising work, or faking a transfer.",
   },
   {
     slug: "outbound-messaging",
-    kicker: "Outbound · Compliance-bound",
-    title: "Outbound messaging built inside a regulatory constraint",
+    kicker: "Outbound · Two channels tested",
+    title: "Two messaging channels tested, and the rules enforced in code",
     summary:
-      "A qualifying agent for cold outbound where the compliance rules are enforced by code that refuses to send, not by instructions in a prompt.",
+      "Outbound tested across two very different channels, personal iMessage and a registered carrier campaign, with a qualifying agent whose compliance rules are enforced by code that refuses to send rather than by instructions in a prompt.",
     constraint:
-      "Cold messaging is regulated, and the carrier registration in place caps daily throughput while charging by segment, so a message over 160 characters costs twice as much and halves what can go out that day. The trap is that length has to be measured on the rendered message against the longest real value each merge field can take, never on the template, or copy that passes on today's data breaks on one unusually long record tomorrow. One sending number serves three campaigns, so a complaint against any one of them degrades the reputation of all three.",
+      "The two channels fail in opposite directions. Personal iMessage delivers beautifully and has no per-segment cost, but it is one identity with no opt-out plumbing, no registered sender, and an account that gets rate-limited or shut off precisely when volume starts to matter, so it does not survive being scaled. The registered carrier channel scales legitimately but bills by segment against a daily cap, which turns message length into a throughput decision: over 160 characters costs twice as much and halves what can go out that day. The trap there is measuring length on the template instead of on the rendered message against the longest real value each merge field can take, so copy that passes on today's data breaks on one unusually long record tomorrow. One number also serves three campaigns, so a complaint against any of them degrades the reputation of all three.",
     approach:
       "The rules live in a validator that refuses to send rather than in a prompt that asks for good behaviour, and it is unit-tested: banned characters, over-length, opt-out handling, quiet hours in the recipient's own timezone, and an application-side suppression list are enforcement, not intent. A prompt instruction is a hope; a validator that rejects the message is a guarantee. The qualifying agent is a reviewable file rather than platform configuration, because the platform's own assistant cannot enforce a deterministic gate. It also never opens with the signal that put someone on the list, since leading with the private thing reads as surveillance.",
     stats: [
+      { value: "2", label: "channels tested" },
       { value: "8,317", label: "contacts in the audience" },
       { value: "160", unit: "char", label: "enforced ceiling" },
-      { value: "3", label: "lanes, one reputation" },
     ],
     stack: [
+      "iMessage channel test",
+      "Registered carrier campaign",
       "Custom qualifying agent",
       "Compliance validator",
-      "Opt-out + quiet hours",
       "Suppression list",
-      "Reply loop",
+    ],
+    caught: [
+      {
+        label: "The channel that worked until it mattered",
+        detail:
+          "iMessage sends land reliably and cost nothing per message, which makes it look like the obvious choice right up to the point where there is no opt-out mechanism, no registered sender identity, and one account carrying all the risk. It is a fine way to test whether copy lands, and the wrong thing to build a pipeline on.",
+      },
+      {
+        label: "Length measured on the template, not the message",
+        detail:
+          "A message that fits in one segment as written can cross into two once a long name and a long address are merged in. Validating the rendered worst case rather than the template is the difference between a predictable daily volume and a bill that quietly doubles.",
+      },
     ],
     guard:
       "Every send path dry-runs against a locked test number first, and the batch sender stays disarmed unless explicitly armed. Compliance posture is reviewed by counsel and never self-authorized from inside a tool.",
