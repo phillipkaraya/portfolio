@@ -118,6 +118,31 @@ export function BuildCard({ build }: { build: Build }) {
           {build.kind}
         </span>
         <p className="text-muted mt-3 text-sm leading-relaxed">{build.blurb}</p>
+
+        {/*
+          Only real applications carry `detail` and `tech`. A brochure site
+          renders exactly as before, so the extra weight lands on the builds
+          that have engineering behind them rather than on every card.
+        */}
+        {build.detail && (
+          <p className="text-muted/85 border-line mt-3.5 border-l-2 pl-3 text-[12.5px] leading-relaxed">
+            {build.detail}
+          </p>
+        )}
+
+        {build.tech && (
+          <div className="mt-3.5 flex flex-wrap gap-1.5">
+            {build.tech.map((t) => (
+              <span
+                key={t}
+                className="border-line text-muted rounded border px-1.5 py-0.5 font-mono text-[9.5px]"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+
         <span className="text-muted mt-auto pt-4 font-mono text-xs">{build.domain}</span>
       </div>
     </a>

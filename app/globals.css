@@ -17,8 +17,8 @@
   --color-night: #0b0d12;
   --color-night-soft: #12151d;
 
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-geist);
+  --font-display: var(--font-bricolage);
   --font-mono: var(--font-jetbrains);
 }
 
@@ -32,17 +32,21 @@
     background-color: var(--color-royal);
     color: #ffffff;
   }
-  /* Fraunces is a variable font: dial in optical size + a little "softness"
-     so display sizes stay editorial rather than stiff. */
+  /*
+   * Bricolage Grotesque is variable on optical size. Large display text gets a
+   * high opsz so the terminals tighten and the face reads as a display cut;
+   * small display text drops to a low opsz to keep counters open and legible.
+   * The previous face carried a WONK axis whose alternate glyphs mangled
+   * descenders, which is why no such axis is set here.
+   */
   .font-display {
-    font-variation-settings: "SOFT" 20, "WONK" 1, "opsz" 72;
-    letter-spacing: -0.018em;
+    font-variation-settings: "opsz" 48;
+    letter-spacing: -0.028em;
   }
-  /* Smaller display text needs a lower optical size to stay legible */
   .font-display-sm {
-    font-family: var(--font-fraunces);
-    font-variation-settings: "SOFT" 12, "WONK" 0, "opsz" 20;
-    letter-spacing: -0.01em;
+    font-family: var(--font-bricolage);
+    font-variation-settings: "opsz" 14;
+    letter-spacing: -0.015em;
   }
 }
 
@@ -83,6 +87,69 @@
   .rule-fade {
     background: linear-gradient(90deg, currentColor, transparent);
   }
+
+  .pulse-dot {
+    animation: pulse-ring 2.4s ease-out infinite;
+  }
+  @keyframes pulse-ring {
+    0% {
+      box-shadow: 0 0 0 0 rgba(111, 139, 255, 0.55);
+    }
+    70% {
+      box-shadow: 0 0 0 7px rgba(111, 139, 255, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(111, 139, 255, 0);
+    }
+  }
+}
+
+/*
+ * Stateful component rules live OUTSIDE @layer utilities on purpose.
+ *
+ * Tailwind v4 emits its utilities into @layer utilities, and unlayered author
+ * CSS always wins over layered CSS regardless of specificity. Putting these
+ * inside the layer meant `.assembly-row.is-built { opacity: 1 }` lost to the
+ * base `.assembly-row { opacity: 0.42 }` and to Tailwind's own `border-line`,
+ * so rows changed border-style but never actually lit up. Keeping them
+ * unlayered is what makes the built state reliably beat the utilities.
+ *
+ * The un-built state is a dashed border at reduced opacity, never opacity: 0,
+ * so a failed bundle leaves the section fully readable instead of blank.
+ * `is-built` is applied by components/system-assembly.tsx.
+ */
+.assembly-row {
+  opacity: 0.42;
+  transform: translateY(8px);
+}
+.assembly-row.is-built {
+  opacity: 1;
+  transform: none;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--color-ink) 82%, transparent);
+}
+
+/*
+ * Rack slots respond to cursor proximity, not :hover, so the panel reacts a
+ * beat before the pointer lands on a card. `is-near` is set from JS.
+ */
+.rack-slot::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 2px;
+  background: var(--color-royal-light);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rack-slot.is-near {
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+}
+.rack-slot.is-near::before {
+  transform: scaleY(1);
 }
 
 /* Motion is decoration here, never information. Strip all of it on request. */
@@ -96,6 +163,18 @@
   }
   .reveal-in {
     transition: none;
+  }
+  /*
+   * Assembly rows land in their finished state rather than animating in.
+   * These carry !important because they must beat `.assembly-row.is-built`
+   * (higher specificity, declared earlier) as well as the base rule. Without
+   * it the un-built state would win here and the section would render at 42%
+   * opacity permanently for anyone who prefers reduced motion.
+   */
+  .assembly-row {
+    opacity: 1 !important;
+    transform: none !important;
+    border-style: solid !important;
   }
   *,
   *::before,

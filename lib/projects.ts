@@ -87,14 +87,31 @@ export type DeepProject = {
 };
 
 /** A live client site. Card only, links straight out. */
+/**
+ * Applications have engineering behind them: ingest, scoring, matching, or a
+ * real model. Sites are presentation layers. The split matters because a
+ * scoring engine and a brochure page should not carry the same visual weight,
+ * and lumping them together makes the applications look smaller than they are.
+ */
+export type BuildTier = "application" | "site";
+
 export type Build = {
   name: string;
   kind: string;
   category: Category;
+  buildTier: BuildTier;
   blurb: string;
   href: string;
   domain: string;
   image: string;
+  /**
+   * Optional technical breakdown. Only the builds that are real applications
+   * carry these: a marketing site does not need a stack list, and padding one
+   * onto a brochure page would overstate what it is. The card renders the
+   * extra detail only when these are present.
+   */
+  detail?: string;
+  tech?: string[];
 };
 
 export type Category =
@@ -328,7 +345,7 @@ export const systems: DeepProject[] = [
     links: [
       {
         label: "View the repository",
-        href: "https://github.com/financewithphil/fwp-analytics-dashboard",
+        href: "https://github.com/phillipkaraya/fwp-analytics-dashboard",
         kind: "primary",
       },
     ],
@@ -575,66 +592,91 @@ export const builds: Build[] = [
     name: "ScriptSaver",
     kind: "Prescription savings lookup",
     category: "Healthcare",
+    buildTier: "application",
     blurb:
       "Type in your medication and it checks 75 brand-name drugs against the discount programs the manufacturers already run, so people stop overpaying at the pharmacy counter.",
     href: "https://scriptsaver.io",
     domain: "scriptsaver.io",
     image: "/shots/scriptsaver.jpg",
+    detail:
+      "A lookup over 75 brand-name drugs and the manufacturer assistance programs attached to them. The matching is the hard part: drug names arrive with dosage, form, and brand-versus-generic variations that all have to normalize to one canonical entry before a program can be attached, and a wrong match here sends someone to a program they do not qualify for.",
+    tech: ["Next.js", "Name normalization", "Program registry", "Static generation", "Vercel"],
   },
   {
     name: "FleetAgent",
     kind: "AI fleet sourcing SaaS",
     category: "AI & SaaS",
+    buildTier: "application",
     blurb:
       "Finds cars worth buying and the rideshare drivers to put in them, so a fleet owner grows both sides at once. Live and sending leads today.",
     href: "https://fleetagent.co",
     domain: "fleetagent.co",
     image: "/shots/fleetagent.jpg",
+    detail:
+      "Two matching problems in one product. A sourcing pass scores vehicles on acquisition cost against expected rideshare yield, while a separate driver pipeline qualifies applicants and routes them to the vehicles they are actually approved for. Listings are deduplicated across sources before scoring, so the same car arriving from three feeds is ranked once.",
+    tech: ["Next.js", "Supabase", "Scheduled ingest", "Dedupe keys", "Lead routing", "Vercel"],
   },
   {
     name: "Caliber",
     kind: "AI watch-sourcing SaaS",
     category: "AI & SaaS",
+    buildTier: "application",
     blurb:
       "Watches the used luxury watch market all day, filters out the fakes, and ranks what is left by how much profit is in it. Members only.",
     href: "https://caliber-web-ten.vercel.app",
     domain: "caliber-web-ten.vercel.app",
     image: "/shots/caliber.jpg",
+    detail:
+      "Continuous ingest of used luxury watch listings, scored on spread between asking price and realized comparable sales. Authenticity signals are weighted into the rank rather than filtered separately, because the listings most likely to be counterfeit are also the ones that look most profitable on price alone, and a naive margin sort surfaces exactly the wrong inventory first.",
+    tech: ["Next.js", "Scheduled ingest", "Comp-based valuation", "Signal weighting", "Vercel"],
   },
   {
     name: "PeachFlips",
     kind: "Under-market car deal flow",
     category: "Automotive",
+    buildTier: "application",
     blurb:
       "Every car in Georgia listed for less than it is worth, scored and ranked in one place, so flippers stop refreshing listings all day.",
     href: "https://peachflips.vercel.app",
     domain: "peachflips.vercel.app",
     image: "/shots/peachflips.jpg",
+    detail:
+      "Statewide listing sweep scored against market value per model and trim. Runs on the tiered-fetch approach from the acquisition engine, so cheap HTTP requests handle most sources and heavier browser-based fetching is reserved for the ones that need it, which keeps a daily statewide sweep affordable rather than rate-limited into uselessness.",
+    tech: ["Tiered fetch", "Per-model valuation", "Daily sweep", "Dedupe", "Vercel"],
   },
   {
     name: "Marque",
     kind: "Luxury car sourcing SaaS",
     category: "Automotive",
+    buildTier: "application",
     blurb:
       "Tracks exotic cars for sale nationwide, works out what each model is genuinely worth, and ranks every listing by the money left on the table.",
     href: "https://marque-demo.vercel.app/dashboard.html",
     domain: "marque-demo.vercel.app",
     image: "/shots/marque.jpg",
+    detail:
+      "Nationwide exotic inventory tracked and valued per model, then ranked by the gap between asking price and genuine market value. Thin comparable data is the constraint at this end of the market: a model with four sales in a year cannot be valued the same way as one with four hundred, so confidence in the estimate is carried through to the rank rather than hidden behind a single number.",
+    tech: ["Next.js", "Nationwide ingest", "Sparse-comp valuation", "Confidence weighting"],
   },
   {
     name: "SellerFi",
     kind: "Seller-finance deal scanner",
     category: "Real estate",
+    buildTier: "application",
     blurb:
       "Finds homes whose owners will finance the sale themselves, across seven cities, and only flags one when the monthly payment lands below what the place would rent for.",
     href: "https://sellerfi-app.vercel.app",
     domain: "sellerfi-app.vercel.app",
     image: "/shots/sellerfi.jpg",
+    detail:
+      "Scans listings across seven metros for seller-financed terms, then runs an affordability model per property and only surfaces one when the modeled monthly payment clears the local rent baseline. Seller-financing terms are written in prose rather than structured fields, so the extraction has to read them out of listing copy and refuse a listing when the terms are ambiguous instead of guessing.",
+    tech: ["Multi-metro ingest", "Terms extraction", "Affordability model", "Rent baselines"],
   },
   {
     name: "Freedom Numbers",
     kind: "Financial freedom calculator",
     category: "Fintech",
+    buildTier: "application",
     blurb:
       "Answer a few questions and it gives you the number you need to stop working, and how long it takes to get there. About 60 seconds.",
     href: "https://freedom-numbers.vercel.app",
@@ -645,6 +687,7 @@ export const builds: Build[] = [
     name: "Freedom Numbers: Students",
     kind: "Career path comparison tool",
     category: "Fintech",
+    buildTier: "application",
     blurb: "Shows students what each career path actually pays, what it costs to get there, and where they end up in ten years.",
     href: "https://freedom-numbers-students.vercel.app",
     domain: "freedom-numbers-students.vercel.app",
@@ -654,6 +697,7 @@ export const builds: Build[] = [
     name: "Dream Drives ATL",
     kind: "Exotic car rental funnel",
     category: "Automotive",
+    buildTier: "site",
     blurb:
       "An exotic car rental site built as one straight path from browsing to a booked drive.",
     href: "https://dreamdrivesatl.com",
@@ -664,6 +708,7 @@ export const builds: Build[] = [
     name: "TimeSquared",
     kind: "Corporate concierge brand site",
     category: "Brand & services",
+    buildTier: "site",
     blurb:
       "A corporate concierge brand where clients watch their request move through each stage instead of wondering where it stands.",
     href: "https://timesquared-revamp.vercel.app",
@@ -674,6 +719,7 @@ export const builds: Build[] = [
     name: "ColorQ",
     kind: "Fine jewelry catalog site",
     category: "Brand & services",
+    buildTier: "site",
     blurb:
       "A fine jewelry catalog of 500+ styles, designed to read like a magazine spread rather than a storefront.",
     href: "https://colorq-mockup.vercel.app",
@@ -684,6 +730,7 @@ export const builds: Build[] = [
     name: "Cinematic Philms",
     kind: "Aerial cinematography booking",
     category: "Brand & services",
+    buildTier: "site",
     blurb:
       "A licensed drone filming business where the reel does the selling and booking takes one step.",
     href: "https://cinematicphilms.com",
@@ -694,6 +741,7 @@ export const builds: Build[] = [
     name: "Bel4 Vending",
     kind: "Micro-market vending site",
     category: "Brand & services",
+    buildTier: "site",
     blurb: "A vending company site coded from scratch rather than dropped onto a template, with contact forms that hold up against spam bots.",
     href: "https://bel4vending.com",
     domain: "bel4vending.com",
@@ -703,6 +751,7 @@ export const builds: Build[] = [
     name: "CKKB Inc",
     kind: "Medical wig studio site",
     category: "Healthcare",
+    buildTier: "site",
     blurb:
       "A studio making wigs for people losing their hair to illness. Warm branding, and every consultation request lands straight in the owner's inbox.",
     href: "https://ckkbinc.com",
@@ -713,6 +762,7 @@ export const builds: Build[] = [
     name: "Erason Partners",
     kind: "Construction estimating site",
     category: "Brand & services",
+    buildTier: "site",
     blurb: "A construction cost-estimating firm's site, built to win commercial bids by putting the numbers and the track record where buyers look first.",
     href: "https://erasonpartners.com",
     domain: "erasonpartners.com",
@@ -722,6 +772,7 @@ export const builds: Build[] = [
     name: "Global Abiding Hope",
     kind: "Nonprofit donation site",
     category: "Nonprofit",
+    buildTier: "site",
     blurb: "A nonprofit's site that explains the mission in plain words and makes donating take two clicks.",
     href: "https://globalabidinghope.org",
     domain: "globalabidinghope.org",
@@ -731,6 +782,7 @@ export const builds: Build[] = [
     name: "Finance With Phil",
     kind: "Financial education nonprofit",
     category: "Nonprofit",
+    buildTier: "site",
     blurb: "A nonprofit teaching money basics, with free programs, a community, and calculators anyone can use.",
     href: "https://financewithphil.org",
     domain: "financewithphil.org",

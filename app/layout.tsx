@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
-import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Geist, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+/**
+ * Body face. Geist is a neutral grotesque with a taller x-height than Inter,
+ * so long paragraphs stay readable at the sizes used across the site.
+ */
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
 
 /**
- * Fraunces is a variable display serif. Requesting the SOFT, WONK, and opsz
- * axes lets globals.css tune headline warmth per size via
- * font-variation-settings. Do not add `weight` to a variable font request.
+ * Display face. Bricolage Grotesque is a variable grotesque with genuine
+ * character in its terminals, and it replaced Fraunces for two reasons: the
+ * old face's WONK axis swapped in eccentric alternates that made descenders
+ * (notably `j` and `g`) read as broken, and a warm variable serif is one of
+ * the most over-used display choices going. Do not pass `weight` to a
+ * variable font request; set weight through CSS instead.
  */
-const fraunces = Fraunces({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-fraunces",
-  axes: ["SOFT", "WONK", "opsz"],
+  variable: "--font-bricolage",
+  axes: ["opsz"],
   display: "swap",
 });
 
@@ -47,7 +54,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${inter.variable} ${fraunces.variable} ${jetBrainsMono.variable}`}
+      className={`${geist.variable} ${bricolage.variable} ${jetBrainsMono.variable}`}
     >
       <body className="bg-paper text-ink font-sans antialiased">{children}</body>
     </html>

@@ -12,6 +12,9 @@ import {
 import { Reveal } from "@/components/reveal";
 import { BuildCard, DeepCard } from "@/components/project-cards";
 import { Atmosphere, GithubIcon, SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { SignalField } from "@/components/signal-field";
+import { SystemAssembly } from "@/components/system-assembly";
+import { LiveRack } from "@/components/live-rack";
 import { builds, counts, openSource, platforms, systems } from "@/lib/projects";
 
 const proof = [
@@ -64,14 +67,20 @@ function SectionHead({
 }
 
 export default function Home() {
-  const featuredBuilds = builds.slice(0, 6);
+  // Applications carry an engine; sites are presentation layers. Splitting them
+  // stops a brochure page sitting at the same visual weight as a scoring system.
+  const applications = builds.filter((b) => b.buildTier === "application");
+  const sites = builds.filter((b) => b.buildTier === "site");
+  const featuredApplications = applications.slice(0, 6);
 
   return (
     <div>
       {/* ---------------------------------------------------------------- Hero */}
       <header className="bg-night relative overflow-hidden text-white">
         <Atmosphere />
-        <div className="relative mx-auto w-full max-w-6xl px-6">
+        {/* Ambient retrieval-ranking field. Sits above the gradient, below copy. */}
+        <SignalField />
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
           <SiteHeader />
 
           <div className="py-20 md:py-32">
@@ -134,14 +143,12 @@ export default function Home() {
           }
           lede="Systems on my own infrastructure, most built for myself, where the hard problems get solved before a client ever pays for them. Every one of these is live right now."
         />
-        <div className="mt-12 grid gap-5 md:grid-cols-2">
-          {systems.map((p, i) => (
-            <Reveal key={p.slug} delay={(i % 2) * 80}>
-              {/* Uniform typographic cards: see the showImage note in DeepCard */}
-              <DeepCard project={p} showImage={false} />
-            </Reveal>
-          ))}
-        </div>
+        {/* Live status rack: proximity-reactive, sparklines drawn per row. */}
+        <Reveal className="mt-10">
+          <LiveRack />
+        </Reveal>
+        {/* Scroll-driven assembly replaces the old uniform card grid. */}
+        <SystemAssembly projects={systems} />
       </section>
 
       {/* ---------------------------------------------------------- Platforms */}
@@ -221,25 +228,57 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ------------------------------------------------------ Client builds */}
+      {/* ---------------------------------------------------------- Products */}
       <section id="builds" className="bg-surface">
         <div className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
           <SectionHead
-            kicker="Client builds"
+            kicker="Applications"
             title={
               <>
-                {counts.builds} live sites and tools, <span className="text-royal">shipped.</span>
+                Products with an engine <span className="text-royal">behind them.</span>
               </>
             }
-            lede="Product sites, internal tools, and lead-gen apps delivered for clients. Every link below opens the real thing, running in production."
+            lede="Each of these ingests data on a schedule, scores or matches it, and puts a ranked answer in front of someone. Every link opens the real thing, running in production."
           />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredBuilds.map((b, i) => (
+            {featuredApplications.map((b, i) => (
               <Reveal key={b.name} delay={(i % 3) * 70}>
                 <BuildCard build={b} />
               </Reveal>
             ))}
           </div>
+          {/*
+            Sites render as a dense link strip rather than image cards. They are
+            real shipped work and belong on the page, but giving a brochure site
+            the same card as a scoring engine flattens the difference between
+            them, which is the thing this section exists to show.
+          */}
+          <Reveal className="mt-14">
+            <div className="border-line flex items-center gap-3 border-t pt-6">
+              <span className="text-muted font-mono text-[10px] tracking-[0.16em] uppercase">
+                Sites shipped
+              </span>
+              <span aria-hidden className="rule-fade text-line h-px flex-1" />
+              <span className="text-muted font-mono text-[10px] tabular-nums">{sites.length}</span>
+            </div>
+            <div className="mt-5 grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+              {sites.map((s) => (
+                <a
+                  key={s.name}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group border-line/70 flex items-baseline justify-between gap-3 border-b py-2.5 transition"
+                >
+                  <span className="group-hover:text-royal text-sm font-medium transition">
+                    {s.name}
+                  </span>
+                  <span className="text-muted font-mono text-[10px] tracking-wide">{s.kind}</span>
+                </a>
+              ))}
+            </div>
+          </Reveal>
+
           <Reveal className="mt-10">
             <Link
               href="/work"
