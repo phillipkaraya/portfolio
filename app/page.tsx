@@ -7,6 +7,7 @@ import {
   ClipboardList,
   FileText,
   FlaskConical,
+  ShieldAlert,
   Workflow,
 } from "lucide-react";
 import { Reveal } from "@/components/reveal";
@@ -15,7 +16,7 @@ import { Atmosphere, GithubIcon, SiteFooter, SiteHeader } from "@/components/sit
 import { SignalField } from "@/components/signal-field";
 import { SystemAssembly } from "@/components/system-assembly";
 import { LiveRack } from "@/components/live-rack";
-import { builds, counts, openSource, platforms, systems } from "@/lib/projects";
+import { builds, counts, openSource, operations, platforms, systems } from "@/lib/projects";
 
 const proof = [
   `${counts.total} shipped projects`,
@@ -225,6 +226,96 @@ export default function Home() {
               </span>
             </Link>
           </Reveal>
+        </div>
+      </section>
+
+      {/* -------------------------------------------------------- Operations */}
+      <section id="operations" className="bg-night relative overflow-hidden text-white">
+        <Atmosphere intensity={0.55} />
+        <div className="relative mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
+          <SectionHead
+            tone="dark"
+            kicker="Run at volume"
+            title={
+              <>
+                Systems that had to work <span className="text-royal-light">thousands of times.</span>
+              </>
+            }
+            lede="Generation, voice, and outbound, where the interesting problem is not making one of something work. It is the constraint that shows up once you need it to work at volume, under a cost ceiling or a regulator."
+          />
+          <div className="mt-12 flex flex-col gap-4">
+            {operations.map((op, i) => (
+              <Reveal key={op.slug} delay={i * 70}>
+                <article className="rounded-xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
+                  <div className="grid gap-7 md:grid-cols-[minmax(0,1fr)_minmax(0,300px)]">
+                    <div>
+                      <span className="text-royal-light font-mono text-[10px] tracking-[0.16em] uppercase">
+                        {op.kicker}
+                      </span>
+                      <h3 className="font-display mt-2.5 max-w-[30ch] text-xl leading-snug font-semibold tracking-tight md:text-2xl">
+                        {op.title}
+                      </h3>
+                      <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/60">
+                        {op.summary}
+                      </p>
+
+                      <div className="mt-6 grid gap-5 sm:grid-cols-2">
+                        <div>
+                          <span className="font-mono text-[9.5px] tracking-[0.16em] text-white/40 uppercase">
+                            the constraint
+                          </span>
+                          <p className="mt-2 text-[13px] leading-relaxed text-white/70">
+                            {op.constraint}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-royal-light font-mono text-[9.5px] tracking-[0.16em] uppercase">
+                            what it took
+                          </span>
+                          <p className="mt-2 text-[13px] leading-relaxed text-white/70">
+                            {op.approach}
+                          </p>
+                        </div>
+                      </div>
+
+                      {op.guard && (
+                        <p className="mt-5 flex items-start gap-2 text-[11px] leading-relaxed text-white/45">
+                          <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
+                          <span>{op.guard}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col justify-between gap-6">
+                      <div className="flex flex-col gap-4 border-l border-white/10 pl-5">
+                        {op.stats.map((s) => (
+                          <div key={s.label}>
+                            <span className="font-display block text-2xl leading-none font-semibold tabular-nums md:text-3xl">
+                              {s.value}
+                              <span className="text-royal-light text-base">{s.unit}</span>
+                            </span>
+                            <span className="mt-1.5 block font-mono text-[9.5px] tracking-[0.12em] text-white/40 uppercase">
+                              {s.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 pl-5">
+                        {op.stack.map((t) => (
+                          <span
+                            key={t}
+                            className="rounded border border-white/12 px-1.5 py-0.5 font-mono text-[9.5px] text-white/50"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 

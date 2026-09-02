@@ -794,6 +794,110 @@ export const builds: Build[] = [
 /* Open source + the existing case study                                      */
 /* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+/* Operations run at volume                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Work whose defining property is scale rather than a single artifact: a
+ * generation pipeline, a voice agent handling real calls, an outbound system
+ * under regulatory constraint. These are the closest thing on the site to
+ * forward-deployed work, so each one leads with the constraint that shaped it
+ * rather than the headline number.
+ *
+ * Figures here are load-bearing and were taken from the operational notes, not
+ * estimated. Do not round them upward.
+ */
+export type Operation = {
+  slug: string;
+  kicker: string;
+  title: string;
+  summary: string;
+  /** The constraint that actually shaped the build. */
+  constraint: string;
+  /** What was done about it. Reasoning, not recipe. */
+  approach: string;
+  stats: Stat[];
+  stack: string[];
+  guard?: string;
+};
+
+export const operations: Operation[] = [
+  {
+    slug: "site-generation",
+    kicker: "Generation pipeline · At volume",
+    title: "A site per business, generated from public listing data",
+    summary:
+      "Thousands of preview sites, each built from one real business's own listing data, so a cold outreach message could open with the business's finished site instead of a pitch.",
+    constraint:
+      "Generating a site is easy once. Generating thousands, each genuinely specific to its business, means the input data is the product: name, category, hours, address, rating, review text, and photos all have to be harvested, verified, and matched to the right business before a single page is worth sending. Businesses that already had a site had to be filtered out, because sending a mockup to someone who does not need one burns the list.",
+    approach:
+      "Harvesting ran across two browser nodes with deliberate pacing, and every candidate was classified before it entered the build queue rather than after. Records carry their own verification state, so the pipeline can be stopped and resumed without rebuilding what it already knows. Multiple layout variants exist so that a category reads correctly rather than every business receiving one template.",
+    stats: [
+      { value: "3,752", label: "sites generated" },
+      { value: "4,904", label: "businesses harvested" },
+      { value: "4", label: "layout variants" },
+    ],
+    stack: [
+      "Listing-data harvest",
+      "Candidate verification",
+      "Per-business generation",
+      "Bulk deploy",
+      "Resumable queue",
+    ],
+  },
+  {
+    slug: "voice-intake",
+    kicker: "Voice agents · Live calls",
+    title: "A voice agent that runs intake and writes its own call summary",
+    summary:
+      "An inbound agent that answers, routes the caller to the right lane, runs the intake questions, and writes a structured summary back to the CRM record before the next call comes in.",
+    constraint:
+      "A voice agent's dangerous failure is not silence, it is sounding successful while doing nothing: telling a caller they are booked when nothing reached the calendar. Prompts also drift once they get long, and a rule buried inside a branch gets skipped under pressure. On top of that, the platform lets an API write the agent's prompt but not attach its booking action, so part of the system is configuration that no script can own.",
+    approach:
+      "Load-bearing absolutes live in a numbered block at the top of the prompt, ahead of any branch, and branches reference rules by number instead of restating them. The agent is only allowed confident booking language when the booking call actually returned success, and otherwise falls back to an honest promise of a callback, so the failure mode is under-claiming rather than a caller who thinks they have an appointment. Routing is done by asking in the greeting, because contact tags do not render inside a voice prompt.",
+    stats: [
+      { value: "3", label: "lanes routed by one agent" },
+      { value: "100", unit: "%", label: "summaries written to CRM" },
+      { value: "0", label: "bookings claimed without one" },
+    ],
+    stack: [
+      "Voice agent",
+      "Call transcripts",
+      "Post-call summarization",
+      "CRM write-back",
+      "Calendar booking",
+    ],
+    guard:
+      "Tested adversarially before it ever took a real call, because a guardrail only counts if it holds when the caller wants it crossed.",
+  },
+  {
+    slug: "outbound-messaging",
+    kicker: "Outbound · Compliance-bound",
+    title: "Outbound messaging built inside a regulatory constraint",
+    summary:
+      "A qualifying agent for cold outbound where the compliance rules are enforced by code that refuses to send, not by instructions in a prompt.",
+    constraint:
+      "Cold messaging is regulated, and the carrier registration in place caps daily throughput and charges by segment, so every message over 160 characters costs twice as much and halves throughput. The catch is that length has to be measured on the rendered message against the longest real values a merge field can take, not on the template, or a message that passes today breaks on one unusually long record tomorrow.",
+    approach:
+      "The rules live in a validator that rejects a message rather than in a prompt that requests good behaviour, and the validator is unit-tested: banned characters, over-length, opt-out handling, quiet hours, and a suppression list are all enforcement rather than intent. A prompt instruction is a hope; something that refuses to send is a guarantee. The qualifying agent itself is a reviewable file rather than platform configuration, because the platform's own AI cannot enforce a deterministic gate.",
+    stats: [
+      { value: "8,317", label: "contacts in the audience" },
+      { value: "160", unit: "char", label: "hard enforced ceiling" },
+      { value: "1", label: "segment per message" },
+    ],
+    stack: [
+      "Custom qualifying agent",
+      "Compliance validator",
+      "Opt-out + quiet hours",
+      "Suppression list",
+      "Reply loop",
+    ],
+    guard:
+      "Every send path dry-runs against a locked test number first. Compliance posture is reviewed by counsel, never self-authorized.",
+  },
+];
+
 export const openSource = [
   {
     title: "rag-eval-harness",
