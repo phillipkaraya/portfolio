@@ -12,10 +12,22 @@ import {
 } from "lucide-react";
 import { Reveal } from "@/components/reveal";
 import { BuildCard, DeepCard } from "@/components/project-cards";
-import { Atmosphere, GithubIcon, SiteFooter, SiteHeader } from "@/components/site-chrome";
+import {
+  Atmosphere,
+  GithubIcon,
+  SiteFooter,
+  SiteHeader,
+} from "@/components/site-chrome";
 import { SignalField } from "@/components/signal-field";
 import { SystemAssembly } from "@/components/system-assembly";
-import { builds, counts, openSource, operations, platforms, systems } from "@/lib/projects";
+import {
+  builds,
+  counts,
+  openSource,
+  operations,
+  platforms,
+  systems,
+} from "@/lib/projects";
 
 const proof = [
   `${counts.total} shipped projects`,
@@ -102,16 +114,17 @@ export default function Home() {
               for real businesses.
             </h1>
             <p className="mt-7 max-w-[56ch] text-lg text-white/60">
-              Not demos. Agents that have run unattended for months, retrieval stacks measured with
-              real evals, and platforms that real teams log into every day. Two ways to work with me:
-              embedded as an engineer on your team, or done-for-you builds for your business.
+              Not demos. Agents that have run unattended for months, retrieval
+              stacks measured with real evals, and platforms that real teams log
+              into every day. Two ways to work with me: embedded as an engineer
+              on your team, or done-for-you builds for your business.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <a
-                href="#systems"
+                href="#builds"
                 className="bg-royal hover:bg-royal-dark inline-flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-medium text-white transition"
               >
-                See the systems <ArrowRight className="size-4" />
+                See the work <ArrowRight className="size-4" />
               </a>
               <a
                 href="#hiring"
@@ -132,29 +145,82 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ------------------------------------------------------------ Systems */}
-      <section id="systems" className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
-        <SectionHead
-          kicker="Built and operated in-house"
-          title={
-            <>
-              I don&rsquo;t just build them. <span className="text-royal">I run them.</span>
-            </>
-          }
-          lede="Systems on my own infrastructure, most built for myself, where the hard problems get solved before a client ever pays for them. Every one of these is live right now."
-        />
-        {/* Scroll-driven assembly replaces the old uniform card grid. */}
-        <SystemAssembly projects={systems} />
+      {/* ---------------------------------------------------------- Products */}
+      <section id="builds" className="bg-surface">
+        <div className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
+          <SectionHead
+            kicker="Applications"
+            title={
+              <>
+                Products with an engine{" "}
+                <span className="text-royal">behind them.</span>
+              </>
+            }
+            lede="Each of these ingests data on a schedule, scores or matches it, and puts a ranked answer in front of someone. Every link opens the real thing, running in production."
+          />
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredApplications.map((b, i) => (
+              <Reveal key={b.name} delay={(i % 3) * 70}>
+                <BuildCard build={b} />
+              </Reveal>
+            ))}
+          </div>
+          {/*
+            Sites render as a dense link strip rather than image cards. They are
+            real shipped work and belong on the page, but giving a brochure site
+            the same card as a scoring engine flattens the difference between
+            them, which is the thing this section exists to show.
+          */}
+          <Reveal className="mt-14">
+            <div className="border-line flex items-center gap-3 border-t pt-6">
+              <span className="text-muted font-mono text-[10px] tracking-[0.16em] uppercase">
+                Sites shipped
+              </span>
+              <span aria-hidden className="rule-fade text-line h-px flex-1" />
+              <span className="text-muted font-mono text-[10px] tabular-nums">
+                {sites.length}
+              </span>
+            </div>
+            <div className="mt-5 grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+              {sites.map((s) => (
+                <a
+                  key={s.name}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group border-line/70 flex items-baseline justify-between gap-3 border-b py-2.5 transition"
+                >
+                  <span className="group-hover:text-royal text-sm font-medium transition">
+                    {s.name}
+                  </span>
+                  <span className="text-muted font-mono text-[10px] tracking-wide">
+                    {s.kind}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </Reveal>
+
+          <Reveal className="mt-10">
+            <Link
+              href="/work"
+              className="border-ink/15 hover:border-ink/40 inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-medium transition"
+            >
+              See all {counts.total} projects <ArrowRight className="size-4" />
+            </Link>
+          </Reveal>
+        </div>
       </section>
 
       {/* ---------------------------------------------------------- Platforms */}
-      <section id="platforms" className="bg-surface">
+      <section id="platforms">
         <div className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
           <SectionHead
             kicker="Platforms · The big builds"
             title={
               <>
-                Beyond websites: <span className="text-royal">full platforms.</span>
+                Beyond websites:{" "}
+                <span className="text-royal">full platforms.</span>
               </>
             }
             lede="Multi-app systems with real users, real data, and real operations running through them, designed and shipped end to end."
@@ -165,6 +231,135 @@ export default function Home() {
                 <DeepCard project={p} />
               </Reveal>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------- Systems + operations */}
+      <section id="systems" className="bg-surface">
+        <div className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
+          <SectionHead
+            kicker="Built and operated in-house"
+            title={
+              <>
+                I don&rsquo;t just build them.{" "}
+                <span className="text-royal">I run them.</span>
+              </>
+            }
+            lede="Systems on my own infrastructure, where the hard problems get solved before a client ever pays for them. Some are one service running unattended for months; others had to hold up across thousands of executions under a cost or compliance ceiling."
+          />
+
+          {/* The seven long-running services. */}
+          <SystemAssembly projects={systems} />
+
+          {/* Same tier, different failure mode: these had to survive volume. */}
+          <div className="mt-16">
+            <div className="border-line flex items-center gap-3 border-b pb-2.5">
+              <span className="text-muted font-mono text-[10px] tracking-[0.16em] uppercase">
+                run at volume
+              </span>
+              <span aria-hidden className="rule-fade text-line h-px flex-1" />
+              <span className="text-muted font-mono text-[10px] tabular-nums">
+                {operations.length}
+              </span>
+            </div>
+            <div className="mt-6 flex flex-col gap-4">
+              {operations.map((op, i) => (
+                <Reveal key={op.slug} delay={i * 60}>
+                  <article className="border-line bg-paper rounded-xl border p-5 md:p-6">
+                    <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,190px)]">
+                      <div className="min-w-0">
+                        <span className="text-royal font-mono text-[10px] tracking-[0.16em] uppercase">
+                          {op.kicker}
+                        </span>
+                        <h3 className="font-display mt-2 max-w-[34ch] text-[17px] leading-snug font-semibold tracking-tight text-balance md:text-xl">
+                          {op.title}
+                        </h3>
+                        <p className="text-muted mt-2 line-clamp-3 max-w-[64ch] text-[13px] leading-relaxed sm:line-clamp-none">
+                          {op.summary}
+                        </p>
+
+                        {/*
+                        Constraint and approach are the substance, but they are
+                        long. Collapsed by default so three of these do not bury
+                        the seven rows above them; open on demand.
+                      */}
+                        <details className="group/d mt-4">
+                          <summary className="text-ink marker:content-none flex cursor-pointer list-none items-center gap-2 font-mono text-[10px] tracking-[0.14em] uppercase select-none">
+                            <span className="text-royal transition group-open/d:rotate-90">
+                              ›
+                            </span>
+                            the constraint, and what it took
+                          </summary>
+                          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                            <p className="border-line border-l-2 pl-3 text-[12.5px] leading-relaxed text-muted">
+                              {op.constraint}
+                            </p>
+                            <p className="border-royal/40 border-l-2 pl-3 text-[12.5px] leading-relaxed text-muted">
+                              {op.approach}
+                            </p>
+                          </div>
+
+                          {op.caught && (
+                            <div className="mt-4">
+                              <span className="text-muted font-mono text-[9.5px] tracking-[0.16em] uppercase">
+                                caught in production
+                              </span>
+                              <div className="mt-2.5 flex flex-col gap-2.5">
+                                {op.caught.map((c) => (
+                                  <div
+                                    key={c.label}
+                                    className="border-red/40 border-l-2 pl-3"
+                                  >
+                                    <span className="text-ink block text-[12.5px] font-medium">
+                                      {c.label}
+                                    </span>
+                                    <p className="text-muted mt-0.5 text-[12px] leading-relaxed">
+                                      {c.detail}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {op.guard && (
+                            <p className="text-muted mt-4 flex items-start gap-2 text-[11px] leading-relaxed">
+                              <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
+                              <span>{op.guard}</span>
+                            </p>
+                          )}
+                        </details>
+                      </div>
+
+                      {/*
+                        Inline on mobile so three of these cannot tower over the
+                        133px system rows they sit beside. Stacked column only
+                        once there is a sidebar to hold it.
+                      */}
+                      <div className="border-line flex flex-row flex-wrap gap-x-5 gap-y-2 md:flex-col md:gap-4 md:border-l md:pl-5">
+                        {op.stats.map((s) => (
+                          <div
+                            key={s.label}
+                            className="flex items-baseline gap-1.5 md:block"
+                          >
+                            <span className="font-display text-[15px] leading-none font-semibold tabular-nums md:block md:text-2xl">
+                              {s.value}
+                              <span className="text-royal text-[11px] md:text-sm">
+                                {s.unit}
+                              </span>
+                            </span>
+                            <span className="text-muted font-mono text-[9.5px] tracking-[0.1em] uppercase md:mt-1 md:block">
+                              {s.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -189,13 +384,22 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="group border-line bg-paper flex h-full flex-col rounded-xl border p-6 transition duration-300 hover:-translate-y-1 hover:border-red/30 hover:shadow-[0_16px_44px_-20px_rgba(225,29,42,0.35)]"
               >
-                <span aria-hidden className="bg-red mb-4 h-1 w-10 rounded-full" />
+                <span
+                  aria-hidden
+                  className="bg-red mb-4 h-1 w-10 rounded-full"
+                />
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-display text-xl font-semibold tracking-tight">{o.title}</h3>
+                  <h3 className="font-display text-xl font-semibold tracking-tight">
+                    {o.title}
+                  </h3>
                   <GithubIcon className="text-muted group-hover:text-ink mt-1 size-4 shrink-0 transition" />
                 </div>
-                <p className="text-muted mt-2 text-sm leading-relaxed">{o.desc}</p>
-                <span className="text-red mt-auto pt-5 font-mono text-sm">{o.metric}</span>
+                <p className="text-muted mt-2 text-sm leading-relaxed">
+                  {o.desc}
+                </p>
+                <span className="text-red mt-auto pt-5 font-mono text-sm">
+                  {o.metric}
+                </span>
               </a>
             </Reveal>
           ))}
@@ -204,7 +408,10 @@ export default function Home() {
               href="/work/tesla-rental-funnel"
               className="group border-line bg-paper flex h-full flex-col rounded-xl border p-6 transition duration-300 hover:-translate-y-1 hover:border-royal/30 hover:shadow-[0_16px_44px_-20px_rgba(31,68,224,0.35)]"
             >
-              <span aria-hidden className="bg-royal mb-4 h-1 w-10 rounded-full" />
+              <span
+                aria-hidden
+                className="bg-royal mb-4 h-1 w-10 rounded-full"
+              />
               <span className="text-muted font-mono text-[11px] tracking-wide uppercase">
                 Case study · growth automation
               </span>
@@ -212,8 +419,9 @@ export default function Home() {
                 Ad to signed contract in 14 days
               </h3>
               <p className="text-muted mt-2 text-sm leading-relaxed">
-                Designed the creative, launched a Marketplace ad, and built an applicant-scoring and
-                daily-digest pipeline that turned cold inbound into a signed, delivered deal.
+                Designed the creative, launched a Marketplace ad, and built an
+                applicant-scoring and daily-digest pipeline that turned cold
+                inbound into a signed, delivered deal.
               </p>
               <span className="text-royal mt-auto inline-flex items-center gap-1 pt-5 font-mono text-sm">
                 $1,400/mo · 14-day cycle
@@ -224,190 +432,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* -------------------------------------------------------- Operations */}
-      <section id="operations" className="bg-night relative overflow-hidden text-white">
-        <Atmosphere intensity={0.55} />
-        <div className="relative mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
-          <SectionHead
-            tone="dark"
-            kicker="Run at volume"
-            title={
-              <>
-                Systems that had to work <span className="text-royal-light">thousands of times.</span>
-              </>
-            }
-            lede="Generation, voice, and outbound, where the interesting problem is not making one of something work. It is the constraint that shows up once you need it to work at volume, under a cost ceiling or a regulator."
-          />
-          <div className="mt-12 flex flex-col gap-4">
-            {operations.map((op, i) => (
-              <Reveal key={op.slug} delay={i * 70}>
-                <article className="rounded-xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
-                  <div className="grid gap-7 md:grid-cols-[minmax(0,1fr)_minmax(0,300px)]">
-                    <div>
-                      <span className="text-royal-light font-mono text-[10px] tracking-[0.16em] uppercase">
-                        {op.kicker}
-                      </span>
-                      <h3 className="font-display mt-2.5 max-w-[30ch] text-xl leading-snug font-semibold tracking-tight md:text-2xl">
-                        {op.title}
-                      </h3>
-                      <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-white/60">
-                        {op.summary}
-                      </p>
-
-                      <div className="mt-6 grid gap-5 sm:grid-cols-2">
-                        <div>
-                          <span className="font-mono text-[9.5px] tracking-[0.16em] text-white/40 uppercase">
-                            the constraint
-                          </span>
-                          <p className="mt-2 text-[13px] leading-relaxed text-white/70">
-                            {op.constraint}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-royal-light font-mono text-[9.5px] tracking-[0.16em] uppercase">
-                            what it took
-                          </span>
-                          <p className="mt-2 text-[13px] leading-relaxed text-white/70">
-                            {op.approach}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/*
-                        Named failures. Every one is a case where the system
-                        reported success and was wrong, which is the whole
-                        point of the section.
-                      */}
-                      {op.caught && (
-                        <div className="mt-6 border-t border-white/10 pt-5">
-                          <span className="font-mono text-[9.5px] tracking-[0.16em] text-white/40 uppercase">
-                            caught in production
-                          </span>
-                          <div className="mt-3 flex flex-col gap-3">
-                            {op.caught.map((c) => (
-                              <div key={c.label} className="border-l border-red/40 pl-3.5">
-                                <span className="block text-[12.5px] font-medium text-white/85">
-                                  {c.label}
-                                </span>
-                                <p className="mt-1 text-[12px] leading-relaxed text-white/50">
-                                  {c.detail}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {op.guard && (
-                        <p className="mt-5 flex items-start gap-2 text-[11px] leading-relaxed text-white/45">
-                          <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
-                          <span>{op.guard}</span>
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col justify-between gap-6">
-                      <div className="flex flex-col gap-4 border-l border-white/10 pl-5">
-                        {op.stats.map((s) => (
-                          <div key={s.label}>
-                            <span className="font-display block text-2xl leading-none font-semibold tabular-nums md:text-3xl">
-                              {s.value}
-                              <span className="text-royal-light text-base">{s.unit}</span>
-                            </span>
-                            <span className="mt-1.5 block font-mono text-[9.5px] tracking-[0.12em] text-white/40 uppercase">
-                              {s.label}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-1.5 pl-5">
-                        {op.stack.map((t) => (
-                          <span
-                            key={t}
-                            className="rounded border border-white/12 px-1.5 py-0.5 font-mono text-[9.5px] text-white/50"
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------- Products */}
-      <section id="builds" className="bg-surface">
-        <div className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
-          <SectionHead
-            kicker="Applications"
-            title={
-              <>
-                Products with an engine <span className="text-royal">behind them.</span>
-              </>
-            }
-            lede="Each of these ingests data on a schedule, scores or matches it, and puts a ranked answer in front of someone. Every link opens the real thing, running in production."
-          />
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredApplications.map((b, i) => (
-              <Reveal key={b.name} delay={(i % 3) * 70}>
-                <BuildCard build={b} />
-              </Reveal>
-            ))}
-          </div>
-          {/*
-            Sites render as a dense link strip rather than image cards. They are
-            real shipped work and belong on the page, but giving a brochure site
-            the same card as a scoring engine flattens the difference between
-            them, which is the thing this section exists to show.
-          */}
-          <Reveal className="mt-14">
-            <div className="border-line flex items-center gap-3 border-t pt-6">
-              <span className="text-muted font-mono text-[10px] tracking-[0.16em] uppercase">
-                Sites shipped
-              </span>
-              <span aria-hidden className="rule-fade text-line h-px flex-1" />
-              <span className="text-muted font-mono text-[10px] tabular-nums">{sites.length}</span>
-            </div>
-            <div className="mt-5 grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
-              {sites.map((s) => (
-                <a
-                  key={s.name}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group border-line/70 flex items-baseline justify-between gap-3 border-b py-2.5 transition"
-                >
-                  <span className="group-hover:text-royal text-sm font-medium transition">
-                    {s.name}
-                  </span>
-                  <span className="text-muted font-mono text-[10px] tracking-wide">{s.kind}</span>
-                </a>
-              ))}
-            </div>
-          </Reveal>
-
-          <Reveal className="mt-10">
-            <Link
-              href="/work"
-              className="border-ink/15 hover:border-ink/40 inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-medium transition"
-            >
-              See all {counts.total} projects <ArrowRight className="size-4" />
-            </Link>
-          </Reveal>
-        </div>
-      </section>
-
       {/* ---------------------------------------------------------- Approach */}
-      <section id="approach" className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
+      <section
+        id="approach"
+        className="mx-auto w-full max-w-6xl px-6 py-20 md:py-28"
+      >
         <SectionHead
           kicker="Two ways to work"
           title={
             <>
-              Embedded engineer, or <span className="text-royal">done-for-you.</span>
+              Embedded engineer, or{" "}
+              <span className="text-royal">done-for-you.</span>
             </>
           }
         />
@@ -415,21 +450,26 @@ export default function Home() {
           <Reveal>
             <div className="border-line bg-paper h-full rounded-xl border p-7">
               <Workflow className="text-royal size-6" />
-              <h3 className="font-display mt-4 text-xl font-semibold">Embedded engineer</h3>
+              <h3 className="font-display mt-4 text-xl font-semibold">
+                Embedded engineer
+              </h3>
               <p className="text-muted mt-2 text-sm leading-relaxed">
-                Drop in as a forward-deployed engineer: scope the problem with your customers, build
-                the POC, and ship it to production. RAG, agents, evals, and the integrations that
-                make it real.
+                Drop in as a forward-deployed engineer: scope the problem with
+                your customers, build the POC, and ship it to production. RAG,
+                agents, evals, and the integrations that make it real.
               </p>
             </div>
           </Reveal>
           <Reveal delay={80}>
             <div className="border-line bg-paper h-full rounded-xl border p-7">
               <Boxes className="text-red size-6" />
-              <h3 className="font-display mt-4 text-xl font-semibold">Done-for-you projects</h3>
+              <h3 className="font-display mt-4 text-xl font-semibold">
+                Done-for-you projects
+              </h3>
               <p className="text-muted mt-2 text-sm leading-relaxed">
-                A fixed-scope AI build for your business: a workflow automation, an assistant over
-                your data, or an internal tool, delivered end to end and live in weeks.
+                A fixed-scope AI build for your business: a workflow automation,
+                an assistant over your data, or an internal tool, delivered end
+                to end and live in weeks.
               </p>
             </div>
           </Reveal>
@@ -437,7 +477,10 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ Hiring */}
-      <section id="hiring" className="bg-royal relative overflow-hidden text-white">
+      <section
+        id="hiring"
+        className="bg-royal relative overflow-hidden text-white"
+      >
         <div
           aria-hidden
           className="grain pointer-events-none absolute inset-0"
@@ -453,8 +496,8 @@ export default function Home() {
                 For hiring teams: production code, evals, and shipped systems.
               </h2>
               <p className="mt-3 max-w-[52ch] text-sm text-white/75">
-                Forward-deployed and AI solutions engineering. Remote, US. Read the work, then the
-                résumé.
+                Forward-deployed and AI solutions engineering. Remote, US. Read
+                the work, then the résumé.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
