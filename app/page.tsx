@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   BookOpen,
   Boxes,
+  ClipboardList,
   FileText,
   FlaskConical,
   Workflow,
@@ -330,6 +331,13 @@ export default function Home() {
                 <FlaskConical className="size-4" />
                 Eval harness
               </a>
+              <Link
+                href="/audit/content-operations"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/30 px-4 py-2.5 text-sm font-medium text-white transition hover:border-white/70"
+              >
+                <ClipboardList className="size-4" />
+                Audit sample
+              </Link>
               <Link
                 href="/writing/faithful-but-wrong"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/30 px-4 py-2.5 text-sm font-medium text-white transition hover:border-white/70"

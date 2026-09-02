@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Faithful but wrong: where RAG actually breaks — Phillip Karaya",
+  title: "Faithful but wrong: where RAG actually breaks",
   description:
     "Most RAG ships on vibes. Measuring retrieval and answer quality as two separate numbers reveals the failure mode a demo will hide.",
 };
