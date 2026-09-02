@@ -71,6 +71,16 @@ export type DeepProject = {
    */
   hardPart: { problem: string; solution: string };
 
+  /**
+   * The load-bearing architectural decision, stated technically.
+   *
+   * Exists because `hardPart.problem` is framed as an obstacle, and seven
+   * obstacles in a row reads as a list of things that went wrong rather than a
+   * body of engineering. This field names the mechanism instead: what the
+   * system does structurally, in the vocabulary an engineer would use.
+   */
+  mechanism?: { label: string; detail: string };
+
   stats: Stat[];
   stack: string[];
   /** Section heading for the module list, e.g. "The nine modules" */
@@ -145,6 +155,11 @@ export const systems: DeepProject[] = [
       solution:
         'Every decision is written to a ledger before it is acted on, so state can be rebuilt from the record after any interruption, and each agent scores its own past calls per instrument so a losing pattern loses weight without anyone intervening. Recovery is a normal code path rather than an exception handler. The strategies themselves stay private.',
     },
+    mechanism: {
+      label: "Write-ahead ledger, idempotent replay",
+      detail:
+        "Every intent is appended to a durable ledger before execution, so process state is derived from the log rather than held in memory. Restart replays from the last checkpoint, which makes crash recovery the same code path as a cold boot instead of a separate error handler.",
+    },
     stats: [
       { value: "4", label: "autonomous agents" },
       { value: "24/7", label: "unattended uptime" },
@@ -179,6 +194,11 @@ export const systems: DeepProject[] = [
         'Embedding a quarter million messages through a per-token API costs more than the system is worth, and any future model change means paying the whole bill again. Separately, the full-text index behaved differently on a clean rebuild than on the nightly incremental run, which is the class of bug that only shows up once the corpus is big enough to matter.',
       solution:
         'Inference moved to a fixed-cost edge provider, which turned a full re-embed from a budget conversation into a dollar forty decision, and older material tiers itself to cold storage. The index problem was caught by rebuilding from scratch on a schedule and comparing, rather than trusting incremental runs to stay correct forever.',
+    },
+    mechanism: {
+      label: "Hybrid retrieval, FTS5 first with vector rerank",
+      detail:
+        "Lexical search over an FTS5 index runs first and cheaply, and dense vectors only rerank that candidate set. Embeddings run on edge inference at fixed cost rather than per token, so re-indexing the whole corpus is a bounded expense instead of a recurring bill.",
     },
     stats: [
       { value: "212K", unit: "+", label: "messages indexed" },
@@ -216,6 +236,11 @@ export const systems: DeepProject[] = [
       solution:
         'Requests escalate through progressively heavier strategies, and only once a source has actually pushed back, so nearly everything finishes on the cheapest tier. Jobs are declared as configuration rather than code, so a source changing shape is an edit instead of a deploy, and 87 tests catch drift before a customer notices. Which sources and which methods stay in house.',
     },
+    mechanism: {
+      label: "Tiered fetch with per-domain rate governance",
+      detail:
+        "Requests escalate through cost tiers, starting with plain HTTP and only reaching a real browser when a cheaper tier fails. Each domain carries its own rate budget and backoff state, so one hostile source throttles itself without stalling the other twenty-nine.",
+    },
     stats: [
       { value: "30", label: "markets, daily" },
       { value: "1,406", label: "live records maintained" },
@@ -250,6 +275,11 @@ export const systems: DeepProject[] = [
         'An agent confident enough to be useful is also confident enough to promise a refund it has no authority to approve. On top of that there was no paid inference budget for it, so it had to run well on a free tier.',
       solution:
         'Legal and regulatory risk is scored as its own signal, separate from what the customer is asking for, so a risky message escalates even when the intent looks routine. Escalation opens a tracked case carrying the entire thread rather than dead-ending in a queue. The free-tier constraint forced short, disciplined prompts, which improved reply quality rather than hurting it.',
+    },
+    mechanism: {
+      label: "Intent classification gated behind an authority boundary",
+      detail:
+        "Classification and drafting are separated from action. The model proposes an intent and a reply, but anything with financial or contractual consequence requires a human decision, so the agent cannot commit the business to something it has no authority to approve.",
     },
     stats: [
       { value: "8", label: "service desks routed" },
@@ -295,6 +325,11 @@ export const systems: DeepProject[] = [
       solution:
         'Treated as entity resolution rather than lookup: company to officer to person, three separate matches each carrying its own confidence, so a weak link fails loudly instead of handing back a confident wrong phone number. That discipline is why the honest figure is 64% rather than a claim of full coverage. Sources and methods stay in house.',
     },
+    mechanism: {
+      label: "Entity resolution across registries, confidence-scored",
+      detail:
+        "Corporate records are joined to individuals through officer extraction and fuzzy identity matching, with each link carrying a confidence score. Low-confidence matches are held back rather than merged, because a wrong join is more expensive downstream than a missing one.",
+    },
     stats: [
       { value: "2,746", label: "leads in one batch" },
       { value: "562", label: "verified phone numbers" },
@@ -329,6 +364,11 @@ export const systems: DeepProject[] = [
         "Four platforms, four different export formats, and no usable public way to pull a creator's full back catalogue.",
       solution:
         'Everything is normalized into a single post shape at ingest, so the analysis code never needs to know which platform a row came from and adding a fifth platform touches only the importer. It ships as static output, so anyone can run it on their own numbers without standing up infrastructure.',
+    },
+    mechanism: {
+      label: "Normalization layer over four incompatible exports",
+      detail:
+        "Each platform export is mapped into one canonical post schema at ingest, so metrics stay comparable across sources. The output is a static build with no runtime dependency, which is what lets the whole dashboard be handed to someone else and rehosted anywhere.",
     },
     stats: [
       { value: "4", label: "platforms unified" },
@@ -367,6 +407,11 @@ export const systems: DeepProject[] = [
         'Language detection is unreliable on short messages, and real customers switch languages mid conversation. Getting it wrong on a one word reply means answering someone in a language they did not use.',
       solution:
         'Detection runs on every message but carries the last confident choice forward, so a bare “ok” cannot flip the conversation. Anything outside the service catalogue goes to a person with the thread attached rather than being guessed at.',
+    },
+    mechanism: {
+      label: "Catalog-grounded generation with per-turn language detection",
+      detail:
+        "Replies are constrained to a structured service catalog rather than generated freely, so the model cannot invent a service or a price. Language is detected per message rather than per conversation, which is what allows a customer to switch languages mid-thread without resetting state.",
     },
     stats: [
       { value: "2", label: "languages, auto-detected" },

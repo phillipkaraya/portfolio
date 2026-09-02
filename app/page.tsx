@@ -15,7 +15,6 @@ import { BuildCard, DeepCard } from "@/components/project-cards";
 import { Atmosphere, GithubIcon, SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { SignalField } from "@/components/signal-field";
 import { SystemAssembly } from "@/components/system-assembly";
-import { LiveRack } from "@/components/live-rack";
 import { builds, counts, openSource, operations, platforms, systems } from "@/lib/projects";
 
 const proof = [
@@ -144,10 +143,6 @@ export default function Home() {
           }
           lede="Systems on my own infrastructure, most built for myself, where the hard problems get solved before a client ever pays for them. Every one of these is live right now."
         />
-        {/* Live status rack: proximity-reactive, sparklines drawn per row. */}
-        <Reveal className="mt-10">
-          <LiveRack />
-        </Reveal>
         {/* Scroll-driven assembly replaces the old uniform card grid. */}
         <SystemAssembly projects={systems} />
       </section>

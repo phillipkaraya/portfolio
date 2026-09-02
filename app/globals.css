@@ -88,20 +88,6 @@
     background: linear-gradient(90deg, currentColor, transparent);
   }
 
-  .pulse-dot {
-    animation: pulse-ring 2.4s ease-out infinite;
-  }
-  @keyframes pulse-ring {
-    0% {
-      box-shadow: 0 0 0 0 rgba(111, 139, 255, 0.55);
-    }
-    70% {
-      box-shadow: 0 0 0 7px rgba(111, 139, 255, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(111, 139, 255, 0);
-    }
-  }
 }
 
 /*
@@ -127,29 +113,6 @@
   transform: none;
   border-style: solid;
   border-color: color-mix(in srgb, var(--color-ink) 82%, transparent);
-}
-
-/*
- * Rack slots respond to cursor proximity, not :hover, so the panel reacts a
- * beat before the pointer lands on a card. `is-near` is set from JS.
- */
-.rack-slot::before {
-  content: "";
-  position: absolute;
-  inset-block: 0;
-  left: 0;
-  width: 2px;
-  background: var(--color-royal-light);
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.rack-slot.is-near {
-  border-color: rgba(255, 255, 255, 0.22);
-  transform: translateY(-2px);
-}
-.rack-slot.is-near::before {
-  transform: scaleY(1);
 }
 
 /* Motion is decoration here, never information. Strip all of it on request. */
