@@ -820,30 +820,55 @@ export type Operation = {
   stats: Stat[];
   stack: string[];
   guard?: string;
+  /**
+   * Short, concrete failures worth naming. Each one is a case where the system
+   * reported success and was wrong, which is the class of bug this work is
+   * actually about.
+   */
+  caught?: { label: string; detail: string }[];
 };
 
 export const operations: Operation[] = [
   {
     slug: "site-generation",
     kicker: "Generation pipeline · At volume",
-    title: "A site per business, generated from public listing data",
+    title: "A finished site per business, built only from what is verifiably true",
     summary:
-      "Thousands of preview sites, each built from one real business's own listing data, so a cold outreach message could open with the business's finished site instead of a pitch.",
+      "Thousands of pages, three design variants each, generated from real listing and review data for businesses that had no website, so a cold message could open with the business's own finished site instead of a pitch.",
     constraint:
-      "Generating a site is easy once. Generating thousands, each genuinely specific to its business, means the input data is the product: name, category, hours, address, rating, review text, and photos all have to be harvested, verified, and matched to the right business before a single page is worth sending. Businesses that already had a site had to be filtered out, because sending a mockup to someone who does not need one burns the list.",
+      "Nothing in this pipeline fails loudly. The lead source has no has-a-website flag, so that had to be established per business by querying search engines, and the first version of that check was wrong 59 percent of the time while returning clean, parseable, successful-looking results. One engine silently relaxes a quoted query when it has no exact match, so a business with a website came back looking like a business without one. Every one of those returned HTTP 200.",
     approach:
-      "Harvesting ran across two browser nodes with deliberate pacing, and every candidate was classified before it entered the build queue rather than after. Records carry their own verification state, so the pipeline can be stopped and resumed without rebuilding what it already knows. Multiple layout variants exist so that a category reads correctly rather than every business receiving one template.",
+      "Yield went from 41 percent to 77 percent by treating a successful-looking response as unproven until the content itself was validated, not the status code. The generator is deterministic rather than a language model, with a truth layer that will only state what the source data supports: an earlier version invented prices and hours, so claims are now filtered by pattern and dropped when unverifiable. Per-business character comes from mining real reviews for a recurring named staff member, a signature item, unusual hours, or longevity, with clustering that resolves the same person spelled several ways.",
     stats: [
-      { value: "3,752", label: "sites generated" },
-      { value: "4,904", label: "businesses harvested" },
-      { value: "4", label: "layout variants" },
+      { value: "6,288", unit: "+", label: "pages live" },
+      { value: "7,521", label: "leads verified" },
+      { value: "41→77", unit: "%", label: "verifier yield" },
     ],
     stack: [
-      "Listing-data harvest",
-      "Candidate verification",
-      "Per-business generation",
+      "Listing + OSM harvest",
+      "SERP verification",
+      "Deterministic templating",
+      "Review mining",
       "Bulk deploy",
-      "Resumable queue",
+    ],
+    guard:
+      "Real review text only, never invented copy. A negative-keyword filter blocks quotes that would embarrass the business, and a computer-vision check keeps customers out of hero images.",
+    caught: [
+      {
+        label: "A deploy that reported success and shipped nothing",
+        detail:
+          "Past a file-count ceiling the host stopped publishing new pages while still exiting clean, and the health check was reading pages from the previous successful deploy, so every cycle logged a pass while hundreds of pages returned 404. A check that can pass without the new build present is not a check.",
+      },
+      {
+        label: "A five-star review about roaches",
+        detail:
+          "Rating is not a proxy for safe text. A negative-keyword pass now reads the quote itself before it can land on a page being sent to the business it describes.",
+      },
+      {
+        label: "A customer's face on a business's own hero",
+        detail:
+          "Face area alone misses a full-body shot, where the face is tiny and the body fills the frame. Requiring both a face signal and a body signal is what actually catches it.",
+      },
     ],
   },
   {
@@ -853,23 +878,23 @@ export const operations: Operation[] = [
     summary:
       "An inbound agent that answers, routes the caller to the right lane, runs the intake questions, and writes a structured summary back to the CRM record before the next call comes in.",
     constraint:
-      "A voice agent's dangerous failure is not silence, it is sounding successful while doing nothing: telling a caller they are booked when nothing reached the calendar. Prompts also drift once they get long, and a rule buried inside a branch gets skipped under pressure. On top of that, the platform lets an API write the agent's prompt but not attach its booking action, so part of the system is configuration that no script can own.",
+      "A voice agent's dangerous failure is not silence, it is sounding successful while doing nothing: telling a caller they are booked when nothing ever reached the calendar. Models also drift once a prompt passes about twelve thousand characters, and a rule buried inside a branch gets skipped exactly when pressure is highest. The platform draws its own line too, writing the agent's prompt through the API but refusing to attach its booking action, so part of the system is configuration no script can own.",
     approach:
-      "Load-bearing absolutes live in a numbered block at the top of the prompt, ahead of any branch, and branches reference rules by number instead of restating them. The agent is only allowed confident booking language when the booking call actually returned success, and otherwise falls back to an honest promise of a callback, so the failure mode is under-claiming rather than a caller who thinks they have an appointment. Routing is done by asking in the greeting, because contact tags do not render inside a voice prompt.",
+      "Load-bearing absolutes sit in a numbered block at the very top of the prompt, ahead of every branch, and branches reference rules by number rather than restating them. Confident booking language is permitted only when the booking call actually returned success; otherwise the agent falls back to an honest callback promise, so the failure mode is under-claiming rather than a caller who believes they have an appointment. Routing happens by asking in the greeting, because contact tags do not render inside a voice prompt at all, and one question is faster than a lookup anyway.",
     stats: [
       { value: "3", label: "lanes routed by one agent" },
-      { value: "100", unit: "%", label: "summaries written to CRM" },
-      { value: "0", label: "bookings claimed without one" },
+      { value: "12", unit: "k", label: "prompt drift threshold" },
+      { value: "1", label: "question routes the call" },
     ],
     stack: [
-      "Voice agent",
+      "Native voice agent",
       "Call transcripts",
-      "Post-call summarization",
+      "Post-call summaries",
       "CRM write-back",
       "Calendar booking",
     ],
     guard:
-      "Tested adversarially before it ever took a real call, because a guardrail only counts if it holds when the caller wants it crossed.",
+      "Tested with an adversarial caller before it took a real call, because a guardrail only counts if it holds when the caller wants it crossed. The failure mode designed against is an agent that is too helpful: quoting a price, promising work, or faking a transfer.",
   },
   {
     slug: "outbound-messaging",
@@ -878,13 +903,13 @@ export const operations: Operation[] = [
     summary:
       "A qualifying agent for cold outbound where the compliance rules are enforced by code that refuses to send, not by instructions in a prompt.",
     constraint:
-      "Cold messaging is regulated, and the carrier registration in place caps daily throughput and charges by segment, so every message over 160 characters costs twice as much and halves throughput. The catch is that length has to be measured on the rendered message against the longest real values a merge field can take, not on the template, or a message that passes today breaks on one unusually long record tomorrow.",
+      "Cold messaging is regulated, and the carrier registration in place caps daily throughput while charging by segment, so a message over 160 characters costs twice as much and halves what can go out that day. The trap is that length has to be measured on the rendered message against the longest real value each merge field can take, never on the template, or copy that passes on today's data breaks on one unusually long record tomorrow. One sending number serves three campaigns, so a complaint against any one of them degrades the reputation of all three.",
     approach:
-      "The rules live in a validator that rejects a message rather than in a prompt that requests good behaviour, and the validator is unit-tested: banned characters, over-length, opt-out handling, quiet hours, and a suppression list are all enforcement rather than intent. A prompt instruction is a hope; something that refuses to send is a guarantee. The qualifying agent itself is a reviewable file rather than platform configuration, because the platform's own AI cannot enforce a deterministic gate.",
+      "The rules live in a validator that refuses to send rather than in a prompt that asks for good behaviour, and it is unit-tested: banned characters, over-length, opt-out handling, quiet hours in the recipient's own timezone, and an application-side suppression list are enforcement, not intent. A prompt instruction is a hope; a validator that rejects the message is a guarantee. The qualifying agent is a reviewable file rather than platform configuration, because the platform's own assistant cannot enforce a deterministic gate. It also never opens with the signal that put someone on the list, since leading with the private thing reads as surveillance.",
     stats: [
       { value: "8,317", label: "contacts in the audience" },
-      { value: "160", unit: "char", label: "hard enforced ceiling" },
-      { value: "1", label: "segment per message" },
+      { value: "160", unit: "char", label: "enforced ceiling" },
+      { value: "3", label: "lanes, one reputation" },
     ],
     stack: [
       "Custom qualifying agent",
@@ -894,7 +919,7 @@ export const operations: Operation[] = [
       "Reply loop",
     ],
     guard:
-      "Every send path dry-runs against a locked test number first. Compliance posture is reviewed by counsel, never self-authorized.",
+      "Every send path dry-runs against a locked test number first, and the batch sender stays disarmed unless explicitly armed. Compliance posture is reviewed by counsel and never self-authorized from inside a tool.",
   },
 ];
 

@@ -278,6 +278,31 @@ export default function Home() {
                         </div>
                       </div>
 
+                      {/*
+                        Named failures. Every one is a case where the system
+                        reported success and was wrong, which is the whole
+                        point of the section.
+                      */}
+                      {op.caught && (
+                        <div className="mt-6 border-t border-white/10 pt-5">
+                          <span className="font-mono text-[9.5px] tracking-[0.16em] text-white/40 uppercase">
+                            caught in production
+                          </span>
+                          <div className="mt-3 flex flex-col gap-3">
+                            {op.caught.map((c) => (
+                              <div key={c.label} className="border-l border-red/40 pl-3.5">
+                                <span className="block text-[12.5px] font-medium text-white/85">
+                                  {c.label}
+                                </span>
+                                <p className="mt-1 text-[12px] leading-relaxed text-white/50">
+                                  {c.detail}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {op.guard && (
                         <p className="mt-5 flex items-start gap-2 text-[11px] leading-relaxed text-white/45">
                           <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
