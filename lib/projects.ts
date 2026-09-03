@@ -1027,6 +1027,48 @@ export const operations: Operation[] = [
     guard:
       "Every send path dry-runs against a locked test number first, and the batch sender stays disarmed unless explicitly armed. Compliance posture is reviewed by counsel and never self-authorized from inside a tool.",
   },
+  {
+    slug: "tenant-isolation",
+    kicker: "Multi-tenant security · Audited",
+    title: "Auditing a shared database where the isolation is the product",
+    summary:
+      "A recurring audit of a Postgres database where several applications and every client tenant share one instance, and row-level security is the only thing keeping them apart.",
+    constraint:
+      "In a shared database the dangerous state is not an error, it is a permission nobody is using yet. A table can look safe because one control happens to be holding, while the layer underneath it grants far more than anyone intended. That combination fails quietly and stays quiet for as long as nothing changes, which means it is invisible to testing and only surfaces the day someone makes a reasonable-looking change somewhere else.",
+    approach:
+      "Audit the layers separately rather than trusting the outcome. Enumerate every table for whether row-level security is on and whether policies exist, then enumerate the grants underneath independently, because a table with the right behaviour and the wrong grants is a latent breach rather than a safe one. Probe the live API with a public key to confirm what an outsider can actually reach, since a policy that reads correctly and a policy that holds are different claims. Where a table is written only by a server-side key, the public roles are stripped of privileges entirely, so no future change can widen access by accident.",
+    stats: [
+      { value: "84", unit: "/84", label: "tables with RLS enabled" },
+      { value: "4", label: "admin functions moved off the public API" },
+      { value: "0", label: "public grants on lead tables" },
+    ],
+    stack: [
+      "Postgres RLS",
+      "Grant auditing",
+      "Live API probing",
+      "Least privilege",
+      "Deny by default",
+    ],
+    caught: [
+      {
+        label: "Admin checks reachable with a public key",
+        detail:
+          "Helper functions used inside policies were defined in the schema the API publishes, so anything holding the public key could call them, including one that answers whether a caller is an administrator. Moving them to a private schema removed the surface. Confirmed fixed by calling all four from outside and getting a not-found rather than an answer.",
+      },
+      {
+        label: "A lead table one policy away from exposure",
+        detail:
+          "A public contact form's table had row-level security on and no policies, which reads as locked. Underneath, the public role still held select, update and delete grants, held back only by that. Anyone later adding a permissive policy to make a form work would have opened every stored email and phone number in the same motion. The form writes with a server-side key and never needed those grants, so they were revoked.",
+      },
+      {
+        label: "Zero rows is not evidence of a bug",
+        detail:
+          "The same empty table looked like a form silently failing. Reproducing the failure with a public key confirmed inserts were rejected, but the form does not use that path: it writes server-side, and a live end-to-end submission landed correctly. The table was empty because nobody had filled the form in. Testing the wrong path would have produced a fix for a system that was working.",
+      },
+    ],
+    guard:
+      "Read-only enumeration first, and every finding reproduced against the live API before it is called a finding. Nothing is changed on a production database on the strength of a lint result alone.",
+  },
 ];
 
 /**
