@@ -954,37 +954,74 @@ export const operations: Operation[] = [
       "Tested with an adversarial caller before it took a real call, because a guardrail only counts if it holds when the caller wants it crossed. The failure mode designed against is an agent that is too helpful: quoting a price, promising work, or faking a transfer.",
   },
   {
-    slug: "outbound-messaging",
-    kicker: "Outbound · Two channels tested",
-    title: "Two messaging channels tested, and the rules enforced in code",
+    slug: "conversational-outreach",
+    kicker: "Conversational outreach · Shipped",
+    title: "A messaging pipeline where the model handles replies, not the opener",
     summary:
-      "Outbound tested across two very different channels, personal iMessage and a registered carrier campaign, with a qualifying agent whose compliance rules are enforced by code that refuses to send rather than by instructions in a prompt.",
+      "An outreach system that sent a live campaign end to end: contacts deduplicated and normalized on import, sent in controlled waves rather than one blast, with a language model drafting replies on threads that came back and a fixed script on the way out.",
     constraint:
-      "The two channels fail in opposite directions. Personal iMessage delivers beautifully and has no per-segment cost, but it is one identity with no opt-out plumbing, no registered sender, and an account that gets rate-limited or shut off precisely when volume starts to matter, so it does not survive being scaled. The registered carrier channel scales legitimately but bills by segment against a daily cap, which turns message length into a throughput decision: over 160 characters costs twice as much and halves what can go out that day. The trap there is measuring length on the template instead of on the rendered message against the longest real value each merge field can take, so copy that passes on today's data breaks on one unusually long record tomorrow. One number also serves three campaigns, so a complaint against any of them degrades the reputation of all three.",
+      "The instinct is to let a model write the cold opener, and that is exactly backwards. A first message to a stranger has one job and no context to work from, so generated variation mostly adds ways to sound wrong. Replies are the opposite: every one arrives with real context, a tone to match, and a decision attached, and that is where reading the thread correctly actually changes the outcome. Sending is also unforgiving in a way that build-time testing does not catch, because a duplicate or a malformed number is not an error to retry, it is a real person receiving a second cold message.",
     approach:
-      "The rules live in a validator that refuses to send rather than in a prompt that asks for good behaviour, and it is unit-tested: banned characters, over-length, opt-out handling, quiet hours in the recipient's own timezone, and an application-side suppression list are enforcement, not intent. A prompt instruction is a hope; a validator that rejects the message is a guarantee. The qualifying agent is a reviewable file rather than platform configuration, because the platform's own assistant cannot enforce a deterministic gate. It also never opens with the signal that put someone on the list, since leading with the private thing reads as surveillance.",
+      "The opener is a single locked script, deliberately not model-generated, so what goes out is reviewable and identical every time. The model works behind the reply queue instead, drafting a response per thread with a read of what the person actually said, and each one is approved by a human before it sends. Import is where correctness is enforced: duplicates and unusable numbers are dropped before anything is contactable, phone formats are normalized once rather than at send time, and sending runs in bounded waves so a mistake reaches a handful of people rather than the whole list. Recipients carry a long re-contact cadence, because the failure that actually burns a list is contacting the same person twice.",
     stats: [
-      { value: "2", label: "channels tested" },
-      { value: "8,317", label: "contacts in the audience" },
-      { value: "160", unit: "char", label: "enforced ceiling" },
+      { value: "1", label: "locked opener, not generated" },
+      { value: "25", label: "contacts per wave" },
+      { value: "90", unit: "d", label: "re-contact cadence" },
     ],
     stack: [
-      "iMessage channel test",
+      "iMessage automation",
+      "Import dedupe + normalization",
+      "Wave scheduling",
+      "Model-drafted replies",
+      "Human approval queue",
+    ],
+    caught: [
+      {
+        label: "Generating the cold opener was the wrong instinct",
+        detail:
+          "Variant generation was built and then deliberately bypassed for the first message. A cold opener has no context to work from, so generated variation mostly produces new ways to sound off to a stranger. The model earns its place on replies, where there is a real thread to read.",
+      },
+      {
+        label: "Sent messages are not reliably readable back",
+        detail:
+          "Outgoing messages do not consistently land in the local message store, because delivery can route through a separate path depending on the recipient. Reply detection had to be built on incoming messages only, since counting what you believe you sent is not the same as knowing what arrived.",
+      },
+    ],
+    guard:
+      "Every reply is drafted for a human and sent by one. Anyone asking not to be contacted is removed rather than re-queued, and sensitive replies are handled personally instead of by the queue.",
+  },
+  {
+    slug: "compliant-sms",
+    kicker: "Registered SMS · Compliance-bound",
+    title: "Outbound built inside a regulatory ceiling, enforced in code",
+    summary:
+      "A qualifying agent for cold SMS on a registered carrier campaign, where the compliance rules live in a validator that refuses to send rather than in a prompt that asks for good behaviour.",
+    constraint:
+      "A registered campaign scales legitimately and bills by segment against a daily cap, which turns message length into a throughput decision: over 160 characters costs twice as much and halves what can go out that day. The trap is measuring that on the template rather than on the rendered message against the longest real value each merge field can take, so copy that passes on today's data breaks on one unusually long record tomorrow. One sending number also serves three separate campaigns, which means a complaint against any of them degrades the reputation of all three.",
+    approach:
+      "The rules live in a unit-tested validator rather than a prompt: banned characters, over-length, opt-out handling, quiet hours in the recipient's own timezone, and an application-side suppression list are enforcement, not intent. A prompt instruction is a hope; a validator that rejects the message is a guarantee. The qualifying agent is a reviewable file rather than platform configuration, because the platform's own assistant cannot enforce a deterministic gate. It also never opens with the signal that put someone on the list, since leading with the private thing reads as surveillance and earns a spam report.",
+    stats: [
+      { value: "8,317", label: "contacts in the audience" },
+      { value: "160", unit: "char", label: "enforced ceiling" },
+      { value: "3", label: "lanes, one reputation" },
+    ],
+    stack: [
       "Registered carrier campaign",
       "Custom qualifying agent",
       "Compliance validator",
+      "Opt-out + quiet hours",
       "Suppression list",
     ],
     caught: [
       {
-        label: "The channel that worked until it mattered",
-        detail:
-          "iMessage sends land reliably and cost nothing per message, which makes it look like the obvious choice right up to the point where there is no opt-out mechanism, no registered sender identity, and one account carrying all the risk. It is a fine way to test whether copy lands, and the wrong thing to build a pipeline on.",
-      },
-      {
         label: "Length measured on the template, not the message",
         detail:
-          "A message that fits in one segment as written can cross into two once a long name and a long address are merged in. Validating the rendered worst case rather than the template is the difference between a predictable daily volume and a bill that quietly doubles.",
+          "A message that fits one segment as written crosses into two once a long name and a long address merge in. Validating the rendered worst case rather than the template is the difference between a predictable daily volume and a bill that quietly doubles.",
+      },
+      {
+        label: "A platform assistant cannot hold a hard gate",
+        detail:
+          "The hosted conversational AI could not enforce a deterministic rule, which is disqualifying when the rule is a legal obligation rather than a preference. Moving the logic into a reviewable, testable file is what made the gate real.",
       },
     ],
     guard:
