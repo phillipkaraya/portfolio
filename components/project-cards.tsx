@@ -100,7 +100,15 @@ export function BuildCard({ build }: { build: Build }) {
       rel="noopener noreferrer"
       className="group border-line bg-paper flex h-full flex-col overflow-hidden rounded-xl border transition duration-300 hover:-translate-y-1 hover:border-royal/30 hover:shadow-[0_16px_44px_-20px_rgba(10,11,13,0.35)]"
     >
-      <div className="border-line bg-surface relative aspect-[16/10] overflow-hidden border-b">
+      {/*
+        16/9 rather than 16/10. The screenshots are not one shape: they range
+        from 1.42 to 1.93 wide. A 1.60 box cropped the widest ones (ScriptSaver,
+        Marque, both ~1.93) by roughly 17% off each side, which is exactly where
+        a site's logo and nav live. Widening the box brings the crop on those
+        down to about 8% a side, and the narrower ones simply show slightly less
+        height, which costs footer rather than identity.
+      */}
+      <div className="border-line bg-surface relative aspect-[16/9] overflow-hidden border-b">
         <Image
           src={build.image}
           alt=""
