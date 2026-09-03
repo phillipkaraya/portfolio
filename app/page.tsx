@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -195,21 +196,39 @@ export default function Home() {
                 {sites.length}
               </span>
             </div>
-            <div className="mt-5 grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
               {sites.map((s) => (
                 <a
                   key={s.name}
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group border-line/70 flex items-baseline justify-between gap-3 border-b py-2.5 transition"
+                  className="group border-line bg-paper hover:border-royal/40 grid grid-cols-[76px_minmax(0,1fr)] items-center gap-3.5 rounded-lg border p-2.5 transition"
                 >
-                  <span className="group-hover:text-royal text-sm font-medium transition">
-                    {s.name}
-                  </span>
-                  <span className="text-muted font-mono text-[10px] tracking-wide">
-                    {s.kind}
-                  </span>
+                  {/*
+                    A name alone cannot prove a site exists, and design work is
+                    judged by looking at it. The thumbnail is small on purpose:
+                    enough to show the work is real, not enough to compete with
+                    the application cards above, which is the distinction this
+                    section exists to draw.
+                  */}
+                  <div className="bg-surface relative aspect-[16/11] overflow-hidden rounded-md">
+                    <Image
+                      src={s.image}
+                      alt=""
+                      fill
+                      sizes="76px"
+                      className="object-cover object-top transition duration-500 group-hover:scale-[1.06]"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="group-hover:text-royal block truncate text-[13px] font-semibold transition">
+                      {s.name}
+                    </span>
+                    <span className="text-muted mt-0.5 block truncate font-mono text-[9.5px] tracking-wide">
+                      {s.kind}
+                    </span>
+                  </div>
                 </a>
               ))}
             </div>
