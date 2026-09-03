@@ -1029,17 +1029,25 @@ export const operations: Operation[] = [
   },
 ];
 
+/**
+ * Open-source work.
+ *
+ * `metric` is the line a reader sees before they decide whether to click, so it
+ * states the finding in plain words rather than the score that produced it. The
+ * benchmark names and the actual figures live in each repo's README, which is
+ * the right place for someone who wants to check the work.
+ */
 export const openSource = [
   {
     title: "rag-eval-harness",
-    desc: "A reproducible benchmark for RAG retrieval quality across lexical, semantic, and hybrid retrievers, scored on recall, precision, MRR, and nDCG.",
-    metric: "dense retriever · 0.957 nDCG@3",
+    desc: "A test bench for the retrieval step in an AI assistant: given a question, did the system pull up the right source material? It runs four different search methods over the same questions and scores them the same way, so the comparison is reproducible instead of anecdotal.",
+    metric: "Meaning-based search beat keyword search by 21%",
     href: "https://github.com/phillipkaraya/rag-eval-harness",
   },
   {
     title: "rageval-mcp",
-    desc: "An MCP server exposing end-to-end RAG evaluation as agent tools: benchmark BM25, TF-IDF, dense, and hybrid retrieval, then score generated answers for faithfulness and correctness with an LLM judge on Cloudflare Workers AI, over a corpus you can swap at runtime.",
-    metric: "5 tools · Workers AI judge",
+    desc: "The same evaluation, handed to an AI agent as tools it can run itself. It can test the search methods, then grade the answers that come out for whether they are actually supported by the source and whether they are correct. Point it at your own documents and it re-runs against those.",
+    metric: "5 tools an agent can run unattended",
     href: "https://github.com/phillipkaraya/rageval-mcp",
   },
 ];
