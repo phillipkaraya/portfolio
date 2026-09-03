@@ -307,7 +307,7 @@ export default function Home() {
                   <article className="border-line bg-paper rounded-xl border p-5 md:p-6">
                     <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,190px)]">
                       <div className="min-w-0">
-                        <span className="text-royal font-mono text-[10px] tracking-[0.16em] uppercase">
+                        <span className="text-royal font-mono text-[11px] tracking-[0.16em] uppercase sm:text-[10px]">
                           {op.kicker}
                         </span>
                         <h3 className="font-display mt-2 max-w-[34ch] text-[17px] leading-snug font-semibold tracking-tight text-balance md:text-xl">
@@ -393,7 +393,7 @@ export default function Home() {
                                 {s.unit}
                               </span>
                             </span>
-                            <span className="text-muted font-mono text-[9.5px] tracking-[0.1em] uppercase md:mt-1 md:block">
+                            <span className="text-muted font-mono text-[10.5px] tracking-[0.1em] uppercase sm:text-[9.5px] md:mt-1 md:block">
                               {s.label}
                             </span>
                           </div>
