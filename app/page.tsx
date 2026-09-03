@@ -99,8 +99,13 @@ export default function Home() {
             <p className="text-royal-light font-mono text-xs tracking-[0.2em] uppercase">
               AI solutions engineer · forward-deployed
             </p>
-            <h1 className="font-display mt-6 max-w-[17ch] text-5xl leading-[1.03] font-semibold tracking-tight text-balance md:text-7xl">
-              I build AI systems that{" "}
+            {/*
+              The measure widens on small screens on purpose. An 18ch cap is
+              right for the 7xl desktop size but forces this headline to six
+              lines on a phone, where it then eats a third of the first screen.
+            */}
+            <h1 className="font-display mt-6 max-w-[24ch] text-[2.6rem] leading-[1.05] font-semibold tracking-tight text-balance sm:text-5xl md:max-w-[18ch] md:text-7xl md:leading-[1.03]">
+              I build{" "}
               {/*
                 A real text-decoration, not an absolutely positioned bar. The
                 bar was `inline-block` + `w-full`, so once the phrase wrapped on
@@ -109,15 +114,24 @@ export default function Home() {
                 tuned to clear descenders on "p" so skip-ink never breaks it.
               */}
               <span className="decoration-red underline decoration-[5px] underline-offset-[9px] md:decoration-[7px] md:underline-offset-[16px]">
-                solve real problems
-              </span>{" "}
-              for real businesses.
+                production AI
+              </span>
+              , from first problem to running system.
             </h1>
-            <p className="mt-7 max-w-[56ch] text-lg text-white/60">
-              Not demos. Agents that have run unattended for months, retrieval
-              stacks measured with real evals, and platforms that real teams log
-              into every day. Two ways to work with me: embedded as an engineer
-              on your team, or done-for-you builds for your business.
+            {/*
+              Three short declaratives, then the range. Kept as two paragraphs
+              so the proof line reads as a list and does not get absorbed into
+              the sentence after it.
+            */}
+            <p className="mt-7 max-w-[56ch] text-lg text-white/70">
+              Agents that operate autonomously. Retrieval systems measured with
+              real evals. Platforms used by real teams.
+            </p>
+            <p className="mt-4 max-w-[56ch] text-white/55">
+              I work across the full stack, from architecture and integrations
+              to deployment and measurement, either embedded with your
+              engineering team or building the entire solution for your
+              business.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <a

@@ -20,12 +20,20 @@ const CORPUS = 1204;
 const TOP_K = 40;
 const PARTICLES = 620;
 
-/** Scores shown in the HUD. These are the harness's real reported figures. */
-const SCORES = [
-  { key: "bm25", value: 0.789 },
-  { key: "hybrid", value: 0.829 },
-  { key: "dense", value: 0.957, win: true },
-] as const;
+/**
+ * The caption under the animation.
+ *
+ * This used to be a scoreboard reading "bm25 0.789 / hybrid 0.829 / dense
+ * 0.957". Two problems: those are benchmark names a recruiter cannot parse,
+ * and the panel sat at all zeros for the first third of every loop, so the
+ * most common thing a visitor saw was a blank readout. It now narrates what
+ * the animation is doing in words, and the phase it shows always matches the
+ * phase the field is actually in.
+ */
+const PHASES = {
+  searching: { label: "searching", note: "1,204 documents" },
+  ranked: { label: "ranked", note: "40 best matches" },
+} as const;
 
 type Particle = {
   x: number;
@@ -40,7 +48,7 @@ type Particle = {
 
 export function SignalField() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [readout, setReadout] = useState({ corpus: 0, scored: 0, progress: 0 });
+  const [phase, setPhase] = useState<keyof typeof PHASES>("searching");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -118,7 +126,8 @@ export function SignalField() {
         p.y = p.ty;
       });
       paint(1);
-      setReadout({ corpus: CORPUS, scored: TOP_K, progress: 1 });
+      // Reduced motion gets the finished state, so the caption says "ranked".
+      setPhase("ranked");
       return () => window.removeEventListener("resize", resize);
     }
 
@@ -169,12 +178,10 @@ export function SignalField() {
 
       paint(ease);
 
-      const progress = ranked ? Math.min(1, (cycle - 2.2) / 1.5) : 0;
-      setReadout({
-        corpus: Math.round(CORPUS * (ranked ? 1 : Math.min(1, cycle / 2.2))),
-        scored: Math.round(TOP_K * progress),
-        progress,
-      });
+      // The caption tracks the field's own phase, so what it says is always
+      // what the animation is doing. React bails out on an identical value,
+      // so setting this every frame costs nothing.
+      setPhase(ranked ? "ranked" : "searching");
 
       raf = requestAnimationFrame(frame);
     }
@@ -192,33 +199,19 @@ export function SignalField() {
   return (
     <>
       <canvas ref={canvasRef} aria-hidden className="absolute inset-0 size-full" />
+      {/*
+        One line, not a scoreboard. It says what the animation is doing in
+        words a non-specialist reads at a glance, and it is never blank: both
+        phases carry a label and a count.
+      */}
       <div
         aria-hidden
-        className="absolute top-28 right-6 z-20 hidden w-52 rounded-md border border-white/10 bg-night/75 p-3 font-mono text-[10px] leading-[1.9] backdrop-blur-sm lg:block"
+        className="absolute top-28 right-8 z-20 hidden items-center gap-2.5 font-mono text-[10px] tracking-[0.12em] uppercase lg:flex"
       >
-        <div className="text-royal-light mb-1.5 text-[9px] tracking-[0.14em] uppercase">
-          retrieval · live
-        </div>
-        <Row label="corpus" value={readout.corpus.toLocaleString()} />
-        <Row label="scored" value={String(readout.scored)} />
-        {SCORES.map((s) => (
-          <Row
-            key={s.key}
-            label={s.key}
-            value={(s.value * readout.progress).toFixed(3)}
-            win={"win" in s}
-          />
-        ))}
+        <span className="bg-royal-light size-1.5 rounded-full" />
+        <span className="text-royal-light">{PHASES[phase].label}</span>
+        <span className="text-white/35">{PHASES[phase].note}</span>
       </div>
     </>
-  );
-}
-
-function Row({ label, value, win }: { label: string; value: string; win?: boolean }) {
-  return (
-    <div className="flex justify-between text-white/45">
-      <span>{label}</span>
-      <span className={`tabular-nums ${win ? "text-royal-light" : "text-white/85"}`}>{value}</span>
-    </div>
   );
 }

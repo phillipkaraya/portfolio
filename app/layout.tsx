@@ -32,17 +32,17 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://phillipkaraya-portfolio.vercel.app"),
   title: {
-    default: "Phillip Karaya — AI Solutions Engineer",
+    default: "Phillip Karaya · AI Solutions Engineer",
     template: "%s · Phillip Karaya",
   },
   description:
-    "Forward-deployed AI engineer. I build AI systems that solve real problems for real businesses: autonomous agents, evaluated retrieval, and platforms teams use every day.",
+    "Forward-deployed AI engineer. I build production AI, from first problem to running system: autonomous agents, retrieval measured with real evals, and platforms used by real teams.",
   openGraph: {
     type: "website",
     siteName: "Phillip Karaya",
-    title: "Phillip Karaya — AI Solutions Engineer",
+    title: "Phillip Karaya · AI Solutions Engineer",
     description:
-      "Forward-deployed AI engineer. I build AI systems that solve real problems for real businesses: autonomous agents, evaluated retrieval, and platforms teams use every day.",
+      "Forward-deployed AI engineer. I build production AI, from first problem to running system: autonomous agents, retrieval measured with real evals, and platforms used by real teams.",
   },
   twitter: { card: "summary_large_image" },
 };
