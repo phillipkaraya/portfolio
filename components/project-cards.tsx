@@ -143,7 +143,7 @@ export function BuildCard({ build }: { build: Build }) {
             {build.tech.map((t) => (
               <span
                 key={t}
-                className="border-line text-muted rounded border px-1.5 py-0.5 font-mono text-[9.5px]"
+                className="border-line text-muted rounded border px-1.5 py-0.5 font-mono text-[10.5px] sm:text-[9.5px]"
               >
                 {t}
               </span>

@@ -122,8 +122,13 @@ export function SystemAssembly({ projects }: { projects: DeepProject[] }) {
                 </div>
 
                 {/* Mechanism, not obstacle. */}
+                {/*
+                  The mechanism is the claim this row leads with, so it does
+                  not get the smallest size on the page. 11.5px on a phone,
+                  10px once there is a desktop's worth of surrounding context.
+                */}
                 {p.mechanism && (
-                  <p className="text-royal mt-1 font-mono text-[10px] leading-snug">
+                  <p className="text-royal mt-1 font-mono text-[11.5px] leading-snug sm:text-[10px]">
                     {p.mechanism.label}
                   </p>
                 )}
@@ -136,7 +141,7 @@ export function SystemAssembly({ projects }: { projects: DeepProject[] }) {
                   {p.mechanism?.detail ?? p.summary}
                 </p>
 
-                <div className="text-muted mt-2 flex flex-wrap gap-x-3.5 gap-y-1 font-mono text-[10px]">
+                <div className="text-muted mt-2 flex flex-wrap gap-x-3.5 gap-y-1 font-mono text-[11px] sm:text-[10px]">
                   {p.stats.slice(0, 3).map((s) => (
                     <span key={s.label}>
                       <span className="text-ink font-medium tabular-nums">

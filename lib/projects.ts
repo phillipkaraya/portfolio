@@ -1077,5 +1077,19 @@ export const counts = {
   systems: systems.length,
   platforms: platforms.length,
   builds: builds.length,
+  /** How many are actually written up and shown on this site. */
   total: systems.length + platforms.length + builds.length,
+  /**
+   * Everything shipped, not just what is featured here.
+   *
+   * Sourced from the canonical hosting inventory, which counts live sites and
+   * applications across every platform: 111 at last audit. Rendered with a
+   * trailing "+" and rounded DOWN to 100, because a round number that
+   * understates is defensible under questioning and a precise one invites a
+   * spreadsheet. This deliberately excludes the several thousand generated
+   * preview pages, which are counted and described in their own entry rather
+   * than folded in here, since merging them would inflate this figure past
+   * what "projects" honestly means.
+   */
+  shipped: 100,
 };

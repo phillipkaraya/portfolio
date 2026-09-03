@@ -5,7 +5,7 @@ import { counts } from "@/lib/projects";
 
 export const metadata: Metadata = {
   title: "All work",
-  description: `${counts.total} shipped projects: ${counts.systems} systems built and operated in-house, ${counts.platforms} multi-app platforms, and ${counts.builds} live client builds.`,
+  description: `${counts.shipped}+ shipped projects. A selection walked through in detail: ${counts.systems} systems built and operated in-house, ${counts.platforms} multi-app platforms, and ${counts.builds} live sites and tools.`,
 };
 
 export default function WorkPage() {
@@ -20,12 +20,12 @@ export default function WorkPage() {
               Everything, in one place
             </p>
             <h1 className="font-display mt-5 max-w-[18ch] text-4xl leading-[1.04] font-semibold tracking-tight md:text-6xl">
-              {counts.total} projects, built and shipped.
+              {counts.shipped}+ projects, built and shipped.
             </h1>
             <p className="mt-5 max-w-[58ch] text-white/60">
-              {counts.systems} systems I built and operate myself, {counts.platforms} multi-app
-              platforms delivered end to end, and {counts.builds} live client sites and tools. Filter
-              by what you came to see.
+              A selection worth walking through: {counts.systems} systems I built and operate myself,{" "}
+              {counts.platforms} multi-app platforms delivered end to end, and {counts.builds} live
+              sites and tools. Filter by what you came to see.
             </p>
           </div>
         </div>

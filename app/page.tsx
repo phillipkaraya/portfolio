@@ -31,7 +31,7 @@ import {
 } from "@/lib/projects";
 
 const proof = [
-  `${counts.total} shipped projects`,
+  `${counts.shipped}+ shipped projects`,
   "Autonomous agents in production",
   "RAG eval harness + MCP server",
   "Next.js · Supabase · Cloudflare",
@@ -225,7 +225,7 @@ export default function Home() {
                     <span className="group-hover:text-royal block truncate text-[13px] font-semibold transition">
                       {s.name}
                     </span>
-                    <span className="text-muted mt-0.5 block truncate font-mono text-[9.5px] tracking-wide">
+                    <span className="text-muted mt-0.5 block truncate font-mono text-[10.5px] tracking-wide sm:text-[9.5px]">
                       {s.kind}
                     </span>
                   </div>
@@ -239,7 +239,12 @@ export default function Home() {
               href="/work"
               className="border-ink/15 hover:border-ink/40 inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-medium transition"
             >
-              See all {counts.total} projects <ArrowRight className="size-4" />
+              {/*
+                Deliberately no number. The hero claims 100+ shipped, which is
+                the real inventory, and a link that names a smaller figure
+                right under it reads as a correction rather than an invitation.
+              */}
+              See more of the work <ArrowRight className="size-4" />
             </Link>
           </Reveal>
         </div>
@@ -318,7 +323,13 @@ export default function Home() {
                         the seven rows above them; open on demand.
                       */}
                         <details className="group/d mt-4">
-                          <summary className="text-ink marker:content-none flex cursor-pointer list-none items-center gap-2 font-mono text-[10px] tracking-[0.14em] uppercase select-none">
+                          {/*
+                          Padding gives this a real touch target. As a bare
+                          15px line it was a third of the 44px minimum, which
+                          on a phone means repeatedly missing the control that
+                          opens the substance of the card.
+                        */}
+                        <summary className="text-ink marker:content-none -mx-1 flex min-h-11 cursor-pointer list-none items-center gap-2 px-1 font-mono text-[11px] tracking-[0.14em] uppercase select-none sm:min-h-0 sm:text-[10px]">
                             <span className="text-royal transition group-open/d:rotate-90">
                               ›
                             </span>
