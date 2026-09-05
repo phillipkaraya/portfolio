@@ -361,14 +361,14 @@ export const systems: DeepProject[] = [
       "It is open source. Clone it, drop in your own exported data, build, and host it anywhere. A complete data product end to end, collection through analysis to a shipped interface, and one I was willing to publish rather than just describe.",
     hardPart: {
       problem:
-        "Four platforms, four different export formats, and no usable public way to pull a creator's full back catalogue.",
+        "Threads does not publish a view count at all. Forcing all four platforms into one metric meant 564 real posts silently dropped out of every chart, which quietly changed the denominator on numbers a brand would be shown.",
       solution:
-        'Everything is normalized into a single post shape at ingest, so the analysis code never needs to know which platform a row came from and adding a fifth platform touches only the importer. It ships as static output, so anyone can run it on their own numbers without standing up infrastructure.',
+        "Rather than hide the gap, each platform reports the strongest number it can actually stand behind, and the interface says which one it used. Threads measures reach as likes and engagement against followers instead of views, labelled as such everywhere it appears. Nothing is silently substituted, so a number on screen always means what it says.",
     },
     mechanism: {
-      label: "Normalization layer over four incompatible exports",
+      label: "One schema at ingest, honest metrics per platform",
       detail:
-        "Each platform export is mapped into one canonical post schema at ingest, so metrics stay comparable across sources. The output is a static build with no runtime dependency, which is what lets the whole dashboard be handed to someone else and rehosted anywhere.",
+        "Each export is mapped into one canonical post shape at ingest, so adding a fifth platform touches only the importer. Where a platform cannot supply a metric, the fix happens at the source rather than in the display layer, and the interface names the substitution instead of showing a zero. The output is a static build with no runtime dependency, so the whole dashboard can be handed to someone else and rehosted anywhere.",
     },
     stats: [
       { value: "4", label: "platforms unified" },
